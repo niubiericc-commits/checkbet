@@ -17,7 +17,6 @@
     --text: #f4f7fb;
     --muted: #8e9bae;
     --green: #52e58a;
-    --green2: #35c971;
     --red: #ff6b6b;
     --yellow: #f1c75b;
 }
@@ -34,15 +33,8 @@ body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Helvetica,
-        Arial,
-        sans-serif;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 Roboto, Helvetica, Arial, sans-serif;
 }
 
 button,
@@ -60,7 +52,7 @@ header {
     display: flex;
     align-items: center;
     border-bottom: 1px solid var(--border);
-    background: rgba(10, 15, 23, .96);
+    background: rgba(10, 15, 23, .97);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -69,7 +61,6 @@ header {
 .logo {
     font-size: 23px;
     font-weight: 900;
-    letter-spacing: .5px;
 }
 
 .logo span {
@@ -84,9 +75,6 @@ header {
 
 .header-right {
     margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 12px;
 }
 
 .api-status {
@@ -107,6 +95,10 @@ header {
     display: grid;
     grid-template-columns: 225px minmax(0, 1fr) 340px;
 }
+
+/* ============================
+   SIDEBAR
+============================ */
 
 .sidebar {
     background: var(--bg2);
@@ -147,19 +139,13 @@ header {
     font-weight: 800;
 }
 
+/* ============================
+   MAIN
+============================ */
+
 .main {
     min-width: 0;
     padding: 18px;
-}
-
-.betslip {
-    background: var(--bg2);
-    border-left: 1px solid var(--border);
-    padding: 16px;
-    position: sticky;
-    top: 64px;
-    height: calc(100vh - 64px);
-    overflow-y: auto;
 }
 
 .topbar {
@@ -172,7 +158,6 @@ header {
 .page-title {
     font-size: 20px;
     font-weight: 900;
-    margin-right: 8px;
     white-space: nowrap;
 }
 
@@ -219,6 +204,10 @@ header {
     font-size: 11px;
 }
 
+/* ============================
+   EVENTS
+============================ */
+
 .event-card {
     border: 1px solid var(--border);
     background: var(--panel);
@@ -250,10 +239,6 @@ header {
     line-height: 1.5;
 }
 
-.event-teams {
-    min-width: 0;
-}
-
 .team {
     font-weight: 750;
     margin: 3px 0;
@@ -278,6 +263,10 @@ header {
 .event-card.open .event-detail {
     display: block;
 }
+
+/* ============================
+   DETAIL
+============================ */
 
 .detail-head {
     display: flex;
@@ -317,10 +306,6 @@ header {
     margin-bottom: 11px;
 }
 
-.market-nav::-webkit-scrollbar {
-    height: 5px;
-}
-
 .market-nav-btn {
     flex: 0 0 auto;
     border: 1px solid var(--border);
@@ -354,21 +339,14 @@ header {
     gap: 10px;
 }
 
-.market-key {
-    color: var(--muted);
-    font-size: 10px;
-    font-weight: 400;
+.market-count {
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 500;
 }
 
-.bookmaker-block {
+.outcomes-container {
     padding: 10px;
-    border-top: 1px solid var(--border);
-}
-
-.bookmaker-title {
-    color: var(--muted);
-    font-size: 10px;
-    margin-bottom: 8px;
 }
 
 .outcome-grid {
@@ -425,6 +403,15 @@ header {
     font-weight: 900;
 }
 
+.odd-source {
+    margin-top: 5px;
+    color: #657489;
+    font-size: 9px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .loading,
 .empty-state,
 .error-state {
@@ -452,6 +439,20 @@ header {
     to {
         transform: rotate(360deg);
     }
+}
+
+/* ============================
+   BET SLIP
+============================ */
+
+.betslip {
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    padding: 16px;
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
 }
 
 .bet-title {
@@ -537,10 +538,6 @@ header {
     outline: none;
 }
 
-.stake:focus {
-    border-color: var(--green);
-}
-
 .summary {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -576,15 +573,9 @@ header {
     margin-top: 13px;
 }
 
-.market-count {
-    color: var(--green);
-}
-
-.more-warning {
-    color: var(--yellow);
-    font-size: 11px;
-    margin-bottom: 10px;
-}
+/* ============================
+   RESPONSIVE
+============================ */
 
 @media (max-width: 1100px) {
     .layout {
@@ -658,7 +649,9 @@ header {
 <body>
 
 <header>
-    <div class="logo">SPORTS<span>+</span></div>
+    <div class="logo">
+        SPORTS<span>+</span>
+    </div>
 
     <div class="header-center">
         比赛 · 详细盘口 · 串关模拟
@@ -674,49 +667,60 @@ header {
 <div class="layout">
 
     <aside class="sidebar">
-        <div class="sidebar-title">足球联赛</div>
 
-        <button class="league active"
-                data-sport="soccer_epl"
-                data-name="英格兰超级联赛">
+        <div class="sidebar-title">
+            足球联赛
+        </div>
+
+        <button
+            class="league active"
+            data-sport="soccer_epl"
+            data-name="英格兰超级联赛">
             英超
         </button>
 
-        <button class="league"
-                data-sport="soccer_spain_la_liga"
-                data-name="西班牙甲级联赛">
+        <button
+            class="league"
+            data-sport="soccer_spain_la_liga"
+            data-name="西班牙甲级联赛">
             西甲
         </button>
 
-        <button class="league"
-                data-sport="soccer_germany_bundesliga"
-                data-name="德国甲级联赛">
+        <button
+            class="league"
+            data-sport="soccer_germany_bundesliga"
+            data-name="德国甲级联赛">
             德甲
         </button>
 
-        <button class="league"
-                data-sport="soccer_italy_serie_a"
-                data-name="意大利甲级联赛">
+        <button
+            class="league"
+            data-sport="soccer_italy_serie_a"
+            data-name="意大利甲级联赛">
             意甲
         </button>
 
-        <button class="league"
-                data-sport="soccer_france_ligue_one"
-                data-name="法国甲级联赛">
+        <button
+            class="league"
+            data-sport="soccer_france_ligue_one"
+            data-name="法国甲级联赛">
             法甲
         </button>
 
-        <button class="league"
-                data-sport="soccer_usa_mls"
-                data-name="美国职业足球大联盟">
+        <button
+            class="league"
+            data-sport="soccer_usa_mls"
+            data-name="美国职业足球大联盟">
             MLS
         </button>
+
     </aside>
 
 
     <main class="main">
 
         <div class="topbar">
+
             <div id="leagueTitle" class="page-title">
                 英格兰超级联赛
             </div>
@@ -727,30 +731,39 @@ header {
                 type="text"
                 placeholder="搜索球队">
 
-            <button id="refreshBtn" class="refresh-btn">
+            <button
+                id="refreshBtn"
+                class="refresh-btn">
                 刷新
             </button>
+
         </div>
 
+
         <div class="info-strip">
+
             <div id="eventCount" class="info-pill">
                 比赛 0
             </div>
 
             <div class="info-pill">
-                点击比赛加载详细盘口
+                重复盘口已自动合并
             </div>
 
             <div id="lastUpdated" class="info-pill">
                 尚未更新
             </div>
+
         </div>
 
+
         <div id="eventsContainer">
+
             <div class="loading">
                 <div class="loader"></div>
                 正在读取比赛
             </div>
+
         </div>
 
     </main>
@@ -759,16 +772,22 @@ header {
     <aside class="betslip">
 
         <div class="bet-title">
-            <span>模拟串关</span>
+
+            <span>
+                模拟串关
+            </span>
 
             <button
                 id="clearPicksBtn"
                 class="clear-btn">
                 清空
             </button>
+
         </div>
 
+
         <div id="picksContainer"></div>
+
 
         <div class="stake-label">
             模拟金额 CAD
@@ -782,10 +801,16 @@ header {
             step="10"
             value="100">
 
-        <div id="summary" class="summary"></div>
+
+        <div
+            id="summary"
+            class="summary">
+        </div>
+
 
         <div class="simulation-note">
-            此页面仅用于赔率和组合回报模拟，不处理真实资金或真实投注。
+            此页面仅用于赔率和组合回报模拟，
+            不处理真实资金或真实投注。
         </div>
 
     </aside>
@@ -796,178 +821,310 @@ header {
 <script>
 "use strict";
 
+
 /* ============================================================
    STATE
 ============================================================ */
 
-let currentSport = "soccer_epl";
-let currentLeagueName = "英格兰超级联赛";
+let currentSport =
+    "soccer_epl";
+
+let currentLeagueName =
+    "英格兰超级联赛";
 
 let currentEvents = [];
+
 let openedEventId = null;
 
-/*
-    保存已经加载过的比赛详情。
-    用户关闭再打开时不需要立刻重新请求。
-*/
-const detailCache = new Map();
+const detailCache =
+    new Map();
 
-/*
-    Bet slip
-*/
 let picks = [];
 
+
 try {
-    const saved = JSON.parse(
-        localStorage.getItem("sportsPlusPicks") || "[]"
-    );
+
+    const saved =
+        JSON.parse(
+            localStorage.getItem(
+                "sportsPlusPicks"
+            ) || "[]"
+        );
 
     if (Array.isArray(saved)) {
         picks = saved;
     }
+
 } catch {
+
     picks = [];
+
 }
 
 
 /* ============================================================
-   MARKET NAMES
+   MARKET TRANSLATION
 ============================================================ */
 
 const MARKET_NAMES = {
-    h2h: "胜平负",
-    spreads: "让球",
-    totals: "全场大小球",
 
-    alternate_spreads: "更多让球",
-    alternate_totals: "更多大小球",
+    h2h:
+        "胜平负",
 
-    double_chance: "双重机会",
-    draw_no_bet: "平局退款",
-    btts: "两队都进球",
+    spreads:
+        "让球",
 
-    team_totals: "球队进球大小",
-    alternate_team_totals: "球队更多进球大小",
+    totals:
+        "全场大小球",
 
-    correct_score: "正确比分",
-    correct_score_h1: "半场正确比分",
+    alternate_spreads:
+        "更多让球",
 
-    h2h_h1: "半场胜平负",
-    spreads_h1: "半场让球",
-    totals_h1: "半场大小球",
-    btts_h1: "半场两队进球",
+    alternate_totals:
+        "更多大小球",
 
-    halftime_fulltime: "半场 / 全场",
+    double_chance:
+        "双重机会",
 
-    corners: "总角球",
-    alternate_corners: "更多角球",
-    team_corners: "球队角球",
-    alternate_team_corners: "球队更多角球",
+    draw_no_bet:
+        "平局退款",
 
-    cards: "总牌数",
-    alternate_cards: "更多牌数",
+    btts:
+        "两队都进球",
 
-    player_goal_scorer_anytime: "球员任意时间进球",
-    player_goal_scorer_first: "第一进球球员",
-    player_goal_scorer_last: "最后进球球员",
+    team_totals:
+        "球队进球大小",
 
-    player_shots: "球员射门",
-    player_shots_on_target: "球员射正",
+    alternate_team_totals:
+        "球队更多进球大小",
 
-    player_assists: "球员助攻",
+    correct_score:
+        "正确比分",
 
-    player_cards: "球员牌数",
-    player_to_receive_card: "球员吃牌",
-    player_to_receive_red_card: "球员红牌"
+    correct_score_h1:
+        "半场正确比分",
+
+    h2h_h1:
+        "半场胜平负",
+
+    spreads_h1:
+        "半场让球",
+
+    totals_h1:
+        "半场大小球",
+
+    btts_h1:
+        "半场两队进球",
+
+    halftime_fulltime:
+        "半场 / 全场",
+
+    corners:
+        "总角球",
+
+    alternate_corners:
+        "更多角球",
+
+    team_corners:
+        "球队角球",
+
+    alternate_team_corners:
+        "球队更多角球",
+
+    cards:
+        "总牌数",
+
+    alternate_cards:
+        "更多牌数",
+
+    player_goal_scorer_anytime:
+        "球员任意时间进球",
+
+    player_goal_scorer_first:
+        "第一进球球员",
+
+    player_goal_scorer_last:
+        "最后进球球员",
+
+    player_shots:
+        "球员射门",
+
+    player_shots_on_target:
+        "球员射正",
+
+    player_assists:
+        "球员助攻",
+
+    player_cards:
+        "球员牌数",
+
+    player_to_receive_card:
+        "球员吃牌",
+
+    player_to_receive_red_card:
+        "球员红牌"
 };
 
 
-/*
-    常见盘口优先排列。
-    API 返回其他 market key 时仍然显示，不会丢弃。
-*/
 const MARKET_PRIORITY = [
+
     "h2h",
+
     "double_chance",
+
     "draw_no_bet",
 
     "spreads",
+
     "alternate_spreads",
 
     "totals",
+
     "alternate_totals",
 
     "btts",
 
     "team_totals",
+
     "alternate_team_totals",
 
     "h2h_h1",
+
     "spreads_h1",
+
     "totals_h1",
+
     "btts_h1",
 
     "halftime_fulltime",
 
     "correct_score",
+
     "correct_score_h1",
 
     "corners",
+
     "alternate_corners",
+
     "team_corners",
+
     "alternate_team_corners",
 
     "cards",
+
     "alternate_cards",
 
     "player_goal_scorer_anytime",
+
     "player_goal_scorer_first",
+
     "player_goal_scorer_last",
 
     "player_shots",
+
     "player_shots_on_target",
 
     "player_assists",
+
+    "player_cards",
+
     "player_to_receive_card",
+
     "player_to_receive_red_card"
 ];
 
 
 /* ============================================================
-   HELPERS
+   BASIC HELPERS
 ============================================================ */
 
 function escapeHtml(value) {
+
     return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+}
+
+
+function escapeJs(value) {
+
+    return String(value ?? "")
+
+        .replaceAll(
+            "\\",
+            "\\\\"
+        )
+
+        .replaceAll(
+            "'",
+            "\\'"
+        );
 }
 
 
 function safeId(value) {
+
     return String(value ?? "")
-        .replace(/[^a-zA-Z0-9_-]/g, "");
+
+        .replace(
+            /[^a-zA-Z0-9_-]/g,
+            ""
+        );
 }
 
 
 function marketName(key) {
+
     if (MARKET_NAMES[key]) {
+
         return MARKET_NAMES[key];
+
     }
 
+
     return String(key)
-        .replaceAll("_", " ")
-        .replace(/\b\w/g, letter =>
-            letter.toUpperCase()
+
+        .replaceAll(
+            "_",
+            " "
+        )
+
+        .replace(
+            /\b\w/g,
+            letter =>
+                letter.toUpperCase()
         );
 }
 
 
 function marketPriority(key) {
-    const index = MARKET_PRIORITY.indexOf(key);
+
+    const index =
+        MARKET_PRIORITY.indexOf(key);
+
 
     return index === -1
         ? 999
@@ -976,137 +1133,265 @@ function marketPriority(key) {
 
 
 function formatDate(iso) {
-    if (!iso) return "时间待定";
 
-    const date = new Date(iso);
+    if (!iso) {
 
-    if (Number.isNaN(date.getTime())) {
-        return iso;
+        return "时间待定";
+
     }
 
+
+    const date =
+        new Date(iso);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return iso;
+
+    }
+
+
     return date.toLocaleString(
+
         "zh-CN",
+
         {
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit"
+
+            month:
+                "2-digit",
+
+            day:
+                "2-digit",
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit"
+
         }
+
     );
 }
 
 
-function setApiStatus(text, type = "") {
-    const element =
-        document.getElementById("quotaText");
+/* ============================================================
+   API STATUS
+============================================================ */
 
-    element.textContent = text;
+function setApiStatus(
+    text,
+    type = ""
+) {
+
+    const element =
+        document.getElementById(
+            "quotaText"
+        );
+
+
+    element.textContent =
+        text;
+
 
     element.className =
         "api-status" +
-        (type ? ` ${type}` : "");
+        (
+            type
+                ? ` ${type}`
+                : ""
+        );
 }
 
 
 function updateQuota(quota) {
+
     if (!quota) {
-        setApiStatus("服务器已连接", "ok");
+
+        setApiStatus(
+            "服务器已连接",
+            "ok"
+        );
+
         return;
+
     }
 
-    const remaining = quota.remaining;
+
+    const remaining =
+        quota.remaining;
+
 
     if (
         remaining !== null &&
         remaining !== undefined &&
         remaining !== ""
     ) {
+
         setApiStatus(
+
             `API 剩余 ${remaining}`,
+
             "ok"
+
         );
+
     } else {
+
         setApiStatus(
+
             "服务器已连接",
+
             "ok"
+
         );
+
     }
 }
 
 
 /* ============================================================
-   API
+   API REQUEST
 ============================================================ */
 
 async function apiRequest(url) {
-    const response = await fetch(
-        url,
-        {
-            method: "GET",
-            cache: "no-store",
-            headers: {
-                "Accept": "application/json"
-            }
-        }
-    );
 
-    const text = await response.text();
+    const response =
+        await fetch(
+
+            url,
+
+            {
+
+                method:
+                    "GET",
+
+                cache:
+                    "no-store",
+
+                headers: {
+
+                    "Accept":
+                        "application/json"
+
+                }
+
+            }
+
+        );
+
+
+    const text =
+        await response.text();
+
 
     let data;
 
+
     try {
-        data = JSON.parse(text);
+
+        data =
+            JSON.parse(text);
+
     } catch {
+
         throw new Error(
+
             `服务器返回非 JSON 内容。HTTP ${response.status}：` +
-            text.substring(0, 200)
+
+            text.substring(
+                0,
+                200
+            )
+
         );
+
     }
+
 
     if (!response.ok) {
+
         throw new Error(
+
             data?.error ||
+
             data?.message ||
+
             `HTTP ${response.status}`
+
         );
+
     }
 
-    updateQuota(data?.quota);
+
+    updateQuota(
+        data?.quota
+    );
+
 
     return data;
 }
 
 
 /* ============================================================
-   SERVER STATUS
+   CHECK SERVER
 ============================================================ */
 
 async function checkStatus() {
-    try {
-        const data =
-            await apiRequest("/api/status");
 
-        if (data.server === "SPORTS+ DETAIL") {
+    try {
+
+        const data =
+            await apiRequest(
+                "/api/status"
+            );
+
+
+        if (
+            data.server ===
+            "SPORTS+ DETAIL"
+        ) {
+
             setApiStatus(
+
                 "SPORTS+ DETAIL 已连接",
+
                 "ok"
+
             );
+
         } else {
+
             setApiStatus(
+
                 `服务器：${data.server || "已连接"}`,
+
                 "ok"
+
             );
+
         }
+
     } catch (error) {
-        setApiStatus(
-            "服务器连接失败",
-            "error"
-        );
 
         console.error(
-            "STATUS ERROR:",
             error
         );
+
+
+        setApiStatus(
+
+            "服务器连接失败",
+
+            "error"
+
+        );
+
     }
 }
 
@@ -1116,68 +1401,98 @@ async function checkStatus() {
 ============================================================ */
 
 async function loadEvents() {
+
     openedEventId = null;
+
 
     const container =
         document.getElementById(
             "eventsContainer"
         );
 
+
     container.innerHTML = `
+
         <div class="loading">
+
             <div class="loader"></div>
-            正在读取 ${escapeHtml(currentLeagueName)} 比赛
+
+            正在读取
+            ${escapeHtml(currentLeagueName)}
+            比赛
+
         </div>
+
     `;
 
-    try {
-        /*
-            重要：
-            新版前端使用 /api/events/:sport
 
-            这里已经完全不再使用旧版：
-            /api/odds/:sport
-        */
+    try {
+
         const data =
             await apiRequest(
+
                 `/api/events/${encodeURIComponent(currentSport)}`
+
             );
 
+
         currentEvents =
-            Array.isArray(data.events)
+            Array.isArray(
+                data.events
+            )
                 ? data.events
                 : [];
+
 
         document.getElementById(
             "lastUpdated"
         ).textContent =
+
             "更新 " +
+
             new Date().toLocaleTimeString(
+
                 "zh-CN",
+
                 {
-                    hour: "2-digit",
-                    minute: "2-digit"
+
+                    hour:
+                        "2-digit",
+
+                    minute:
+                        "2-digit"
+
                 }
+
             );
+
 
         renderEvents();
 
     } catch (error) {
+
         console.error(
-            "LOAD EVENTS ERROR:",
+            "LOAD EVENTS:",
             error
         );
 
+
         container.innerHTML = `
+
             <div class="error-state">
+
                 ${escapeHtml(error.message)}
+
             </div>
+
         `;
+
 
         document.getElementById(
             "eventCount"
         ).textContent =
             "比赛 0";
+
     }
 }
 
@@ -1187,43 +1502,67 @@ async function loadEvents() {
 ============================================================ */
 
 function renderEvents() {
+
     const container =
         document.getElementById(
             "eventsContainer"
         );
 
+
     const search =
         document.getElementById(
             "searchInput"
         )
+
         .value
+
         .trim()
+
         .toLowerCase();
 
-    const filtered =
-        currentEvents.filter(event => {
-            const searchable =
-                `${event.home_team || ""} ${event.away_team || ""}`
-                    .toLowerCase();
 
-            return (
-                !search ||
-                searchable.includes(search)
-            );
-        });
+    const filtered =
+        currentEvents.filter(
+            event => {
+
+                const text =
+
+                    `${event.home_team || ""} ` +
+
+                    `${event.away_team || ""}`;
+
+
+                return (
+
+                    !search ||
+
+                    text
+                        .toLowerCase()
+                        .includes(search)
+
+                );
+
+            }
+        );
 
 
     document.getElementById(
         "eventCount"
     ).textContent =
+
         `比赛 ${filtered.length}`;
 
 
     if (!filtered.length) {
+
         container.innerHTML = `
+
             <div class="empty-state">
+
                 当前没有找到比赛
+
             </div>
+
         `;
 
         return;
@@ -1231,83 +1570,125 @@ function renderEvents() {
 
 
     container.innerHTML =
-        filtered.map(event => {
-            const isOpen =
-                openedEventId === event.id;
 
-            return `
-                <section
-                    id="event-card-${escapeHtml(event.id)}"
-                    class="event-card ${isOpen ? "open" : ""}">
+        filtered.map(
+            event => {
 
-                    <div
-                        class="event-header"
-                        onclick="toggleEvent('${escapeJs(event.id)}')">
+                const isOpen =
 
-                        <div class="event-time">
-                            ${escapeHtml(formatDate(event.commence_time))}
-                        </div>
+                    openedEventId ===
+                    event.id;
 
-                        <div class="event-teams">
-                            <div class="team">
-                                ${escapeHtml(event.home_team)}
+
+                return `
+
+                    <section
+
+                        id="event-card-${escapeHtml(event.id)}"
+
+                        class="event-card ${isOpen ? "open" : ""}">
+
+
+                        <div
+
+                            class="event-header"
+
+                            onclick="toggleEvent('${escapeJs(event.id)}')">
+
+
+                            <div class="event-time">
+
+                                ${escapeHtml(
+                                    formatDate(
+                                        event.commence_time
+                                    )
+                                )}
+
                             </div>
 
-                            <div class="team">
-                                ${escapeHtml(event.away_team)}
+
+                            <div class="event-teams">
+
+                                <div class="team">
+
+                                    ${escapeHtml(
+                                        event.home_team
+                                    )}
+
+                                </div>
+
+
+                                <div class="team">
+
+                                    ${escapeHtml(
+                                        event.away_team
+                                    )}
+
+                                </div>
+
                             </div>
+
+
+                            <div class="event-action">
+
+                                ${
+                                    isOpen
+                                        ? "收起 ▲"
+                                        : "查看全部盘口 ›"
+                                }
+
+                            </div>
+
                         </div>
 
-                        <div class="event-action">
-                            ${
-                                isOpen
-                                    ? "收起 ▲"
-                                    : "查看全部盘口 ›"
-                            }
+
+                        <div
+
+                            id="event-detail-${escapeHtml(event.id)}"
+
+                            class="event-detail">
+
                         </div>
-                    </div>
 
-                    <div
-                        id="event-detail-${escapeHtml(event.id)}"
-                        class="event-detail">
-                    </div>
+                    </section>
 
-                </section>
-            `;
-        }).join("");
+                `;
+
+            }
+
+        ).join("");
 
 
-    /*
-        如果 renderEvents 因搜索等原因重新画页面，
-        已经打开的比赛详情重新画出来。
-    */
     if (
         openedEventId &&
-        detailCache.has(openedEventId)
+        detailCache.has(
+            openedEventId
+        )
     ) {
+
         const detail =
             document.getElementById(
+
                 `event-detail-${openedEventId}`
+
             );
+
 
         if (detail) {
+
             renderDetailedOdds(
+
                 detail,
-                detailCache.get(openedEventId)
+
+                detailCache.get(
+                    openedEventId
+                )
+
             );
+
         }
+
     }
-}
-
-
-/*
-    event.id 来自 API，一般本身就是安全 ID。
-    这里额外处理引号，避免 onclick 字符串出问题。
-*/
-function escapeJs(value) {
-    return String(value ?? "")
-        .replaceAll("\\", "\\\\")
-        .replaceAll("'", "\\'");
 }
 
 
@@ -1316,544 +1697,1091 @@ function escapeJs(value) {
 ============================================================ */
 
 async function toggleEvent(eventId) {
-    /*
-        已经打开 -> 关闭
-    */
-    if (openedEventId === eventId) {
+
+    if (
+        openedEventId ===
+        eventId
+    ) {
+
         openedEventId = null;
+
         renderEvents();
+
         return;
+
     }
 
-    openedEventId = eventId;
 
-    /*
-        先重新画，让卡片展开。
-    */
+    openedEventId =
+        eventId;
+
+
     renderEvents();
+
 
     const detail =
         document.getElementById(
+
             `event-detail-${eventId}`
+
         );
 
+
     if (!detail) {
+
         return;
+
     }
 
 
-    /*
-        已经加载过
-    */
-    if (detailCache.has(eventId)) {
+    if (
+        detailCache.has(
+            eventId
+        )
+    ) {
+
         renderDetailedOdds(
+
             detail,
-            detailCache.get(eventId)
+
+            detailCache.get(
+                eventId
+            )
+
         );
 
         return;
+
     }
 
 
     detail.innerHTML = `
+
         <div class="loading">
+
             <div class="loader"></div>
-            正在查找这场比赛的全部可用盘口
+
+            正在查询全部可用盘口
+
         </div>
+
     `;
 
 
     try {
+
         /*
-            第一步：
-            查询这场比赛实际存在的 markets
-        */
+         * 1. 查询比赛支持的 markets
+         */
+
         const marketData =
             await apiRequest(
+
                 `/api/event/` +
+
                 `${encodeURIComponent(currentSport)}/` +
+
                 `${encodeURIComponent(eventId)}/markets`
+
             );
 
 
         let markets =
-            Array.isArray(marketData.markets)
+            Array.isArray(
+                marketData.markets
+            )
                 ? [...marketData.markets]
                 : [];
 
 
         /*
-            去重
-        */
+         * Market key 本身去重
+         */
+
         markets =
             [...new Set(markets)];
 
 
-        /*
-            排序
-        */
-        markets.sort((a, b) => {
-            const priorityDifference =
-                marketPriority(a) -
-                marketPriority(b);
+        markets.sort(
+            (a, b) => {
 
-            if (priorityDifference !== 0) {
-                return priorityDifference;
+                const difference =
+
+                    marketPriority(a) -
+
+                    marketPriority(b);
+
+
+                if (difference !== 0) {
+
+                    return difference;
+
+                }
+
+
+                return a.localeCompare(b);
+
             }
-
-            return a.localeCompare(b);
-        });
+        );
 
 
         if (!markets.length) {
+
             detail.innerHTML = `
+
                 <div class="empty-state">
+
                     当前数据源没有返回这场比赛的详细盘口
+
                 </div>
+
             `;
 
             return;
+
         }
 
 
         /*
-            server.js 当前限制最多 28 个 markets。
-        */
+         * server 当前最多取 28 个 market
+         */
+
         const requestedMarkets =
-            markets.slice(0, 28);
+            markets.slice(
+                0,
+                28
+            );
 
 
         detail.innerHTML = `
+
             <div class="loading">
+
                 <div class="loader"></div>
 
-                找到 ${markets.length} 种盘口，
-                正在加载赔率
+                找到
+                ${markets.length}
+                种盘口，正在读取赔率
+
             </div>
+
         `;
 
 
         /*
-            第二步：
-            请求这场比赛详细赔率
-        */
+         * 2. 查询赔率
+         */
+
         const oddsData =
             await apiRequest(
+
                 `/api/event/` +
+
                 `${encodeURIComponent(currentSport)}/` +
+
                 `${encodeURIComponent(eventId)}/odds` +
+
                 `?markets=` +
+
                 encodeURIComponent(
+
                     requestedMarkets.join(",")
+
                 )
+
             );
 
 
         const payload = {
-            event: oddsData.event,
-            availableMarkets: markets,
+
+            event:
+                oddsData.event,
+
+            availableMarkets:
+                markets,
+
             requestedMarkets:
+
                 oddsData.requestedMarkets ||
+
                 requestedMarkets,
-            quota: oddsData.quota
+
+            quota:
+                oddsData.quota
+
         };
 
 
         detailCache.set(
+
             eventId,
+
             payload
+
         );
 
 
         renderDetailedOdds(
+
             detail,
+
             payload
+
         );
 
     } catch (error) {
+
         console.error(
-            "OPEN EVENT ERROR:",
+            "EVENT DETAIL:",
             error
         );
 
+
         detail.innerHTML = `
+
             <div class="error-state">
-                ${escapeHtml(error.message)}
+
+                ${escapeHtml(
+                    error.message
+                )}
+
             </div>
+
         `;
+
     }
 }
 
 
 /* ============================================================
-   NORMALIZE MARKETS
+   DEDUPLICATE MARKETS
+
+   核心逻辑：
+
+   同一个 market 下：
+
+   description + name + point
+
+   完全相同时，视为同一个选择。
+
+   如果多个 bookmaker 都提供同一选择，
+   只保留显示赔率最高的一个。
+
+   不同 point 不会合并。
+
+   例如：
+
+   Over 1.5
+   Over 2.5
+   Over 3.5
+
+   会全部保留。
+
 ============================================================ */
 
 function buildMarketGroups(event) {
-    const groups = new Map();
+
+    const temporary =
+        new Map();
+
 
     const bookmakers =
-        Array.isArray(event?.bookmakers)
+        Array.isArray(
+            event?.bookmakers
+        )
             ? event.bookmakers
             : [];
 
 
-    bookmakers.forEach(bookmaker => {
-        const markets =
-            Array.isArray(bookmaker.markets)
-                ? bookmaker.markets
-                : [];
+    bookmakers.forEach(
+        bookmaker => {
 
 
-        markets.forEach(market => {
-            if (!market?.key) {
-                return;
-            }
-
-            if (!groups.has(market.key)) {
-                groups.set(
-                    market.key,
-                    []
-                );
-            }
-
-            groups.get(
-                market.key
-            ).push({
-                bookmakerKey:
-                    bookmaker.key || "",
-                bookmakerTitle:
-                    bookmaker.title ||
-                    bookmaker.key ||
-                    "Bookmaker",
-                market
-            });
-        });
-    });
+            const markets =
+                Array.isArray(
+                    bookmaker.markets
+                )
+                    ? bookmaker.markets
+                    : [];
 
 
-    return groups;
+            markets.forEach(
+                market => {
+
+
+                    if (!market?.key) {
+
+                        return;
+
+                    }
+
+
+                    if (
+                        !temporary.has(
+                            market.key
+                        )
+                    ) {
+
+                        temporary.set(
+
+                            market.key,
+
+                            new Map()
+
+                        );
+
+                    }
+
+
+                    const outcomeMap =
+                        temporary.get(
+                            market.key
+                        );
+
+
+                    const outcomes =
+                        Array.isArray(
+                            market.outcomes
+                        )
+                            ? market.outcomes
+                            : [];
+
+
+                    outcomes.forEach(
+                        outcome => {
+
+
+                            const price =
+                                Number(
+                                    outcome.price
+                                );
+
+
+                            if (
+                                !Number.isFinite(
+                                    price
+                                )
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            const description =
+
+                                String(
+
+                                    outcome.description ||
+
+                                    ""
+
+                                ).trim();
+
+
+                            const name =
+
+                                String(
+
+                                    outcome.name ||
+
+                                    ""
+
+                                ).trim();
+
+
+                            const point =
+
+                                outcome.point !== null &&
+
+                                outcome.point !== undefined
+
+                                    ? outcome.point
+
+                                    : null;
+
+
+                            /*
+                             * 大小写也统一，
+                             * 避免 "Over" / "over"
+                             * 被当成两个选择。
+                             */
+
+                            const uniqueKey = [
+
+                                description
+                                    .toLowerCase(),
+
+                                name
+                                    .toLowerCase(),
+
+                                point === null
+                                    ? ""
+                                    : String(point)
+
+                            ].join("::");
+
+
+                            const existing =
+                                outcomeMap.get(
+                                    uniqueKey
+                                );
+
+
+                            /*
+                             * 没有 -> 加入
+                             *
+                             * 已存在 ->
+                             * 只在当前赔率更高时覆盖
+                             */
+
+                            if (
+
+                                !existing ||
+
+                                price >
+                                Number(
+                                    existing.price
+                                )
+
+                            ) {
+
+                                outcomeMap.set(
+
+                                    uniqueKey,
+
+                                    {
+
+                                        description,
+
+                                        name,
+
+                                        point,
+
+                                        price,
+
+                                        bookmakerKey:
+
+                                            bookmaker.key ||
+
+                                            "",
+
+                                        bookmakerTitle:
+
+                                            bookmaker.title ||
+
+                                            bookmaker.key ||
+
+                                            "Bookmaker"
+
+                                    }
+
+                                );
+
+                            }
+
+                        }
+
+                    );
+
+                }
+
+            );
+
+        }
+
+    );
+
+
+    /*
+     * Map<marketKey, Array<outcome>>
+     */
+
+    const result =
+        new Map();
+
+
+    temporary.forEach(
+
+        (
+            outcomeMap,
+            marketKey
+        ) => {
+
+
+            const outcomes =
+
+                [...outcomeMap.values()];
+
+
+            /*
+             * 排序
+             */
+
+            outcomes.sort(
+
+                (a, b) => {
+
+
+                    const aText =
+
+                        `${a.description} ${a.name}`;
+
+
+                    const bText =
+
+                        `${b.description} ${b.name}`;
+
+
+                    const textCompare =
+
+                        aText.localeCompare(
+                            bText
+                        );
+
+
+                    if (
+                        textCompare !== 0
+                    ) {
+
+                        return textCompare;
+
+                    }
+
+
+                    const aPoint =
+
+                        a.point === null
+                            ? -99999
+                            : Number(a.point);
+
+
+                    const bPoint =
+
+                        b.point === null
+                            ? -99999
+                            : Number(b.point);
+
+
+                    return (
+                        aPoint -
+                        bPoint
+                    );
+
+                }
+
+            );
+
+
+            result.set(
+
+                marketKey,
+
+                outcomes
+
+            );
+
+        }
+
+    );
+
+
+    return result;
 }
 
 
 /* ============================================================
-   RENDER DETAILED ODDS
+   RENDER DETAIL
 ============================================================ */
 
 function renderDetailedOdds(
     container,
     payload
 ) {
+
     const event =
         payload?.event;
 
+
     if (!event) {
+
         container.innerHTML = `
+
             <div class="empty-state">
+
                 没有收到比赛详情
+
             </div>
+
         `;
 
         return;
     }
 
 
+    /*
+     * 这里得到的已经是去重后的盘口
+     */
+
     const groups =
-        buildMarketGroups(event);
+        buildMarketGroups(
+            event
+        );
 
 
     let marketKeys =
         [...groups.keys()];
 
 
-    marketKeys.sort((a, b) => {
-        const difference =
-            marketPriority(a) -
-            marketPriority(b);
+    marketKeys.sort(
 
-        if (difference !== 0) {
-            return difference;
+        (a, b) => {
+
+
+            const difference =
+
+                marketPriority(a) -
+
+                marketPriority(b);
+
+
+            if (
+                difference !== 0
+            ) {
+
+                return difference;
+
+            }
+
+
+            return a.localeCompare(b);
+
         }
 
-        return a.localeCompare(b);
-    });
+    );
 
 
     if (!marketKeys.length) {
+
         container.innerHTML = `
+
             <div class="empty-state">
+
                 数据源没有返回可显示的赔率
+
             </div>
+
         `;
 
         return;
     }
 
 
-    const totalAvailable =
-        Array.isArray(
-            payload.availableMarkets
-        )
-            ? payload.availableMarkets.length
-            : marketKeys.length;
-
-
     let html = `
+
         <div class="detail-head">
+
 
             <div class="detail-head-left">
 
+
                 <div class="detail-title">
-                    ${escapeHtml(event.home_team)}
+
+                    ${escapeHtml(
+                        event.home_team
+                    )}
+
                     vs
-                    ${escapeHtml(event.away_team)}
+
+                    ${escapeHtml(
+                        event.away_team
+                    )}
+
                 </div>
+
 
                 <div class="detail-meta">
-                    ${escapeHtml(formatDate(event.commence_time))}
+
+                    ${escapeHtml(
+                        formatDate(
+                            event.commence_time
+                        )
+                    )}
+
                     ·
+
                     <span class="market-count">
-                        已加载 ${marketKeys.length} 种盘口
+
+                        ${marketKeys.length}
+                        种盘口
+
                     </span>
+
+                    · 重复盘口已合并
+
                 </div>
 
+
             </div>
+
 
             <button
+
                 class="close-btn"
+
                 onclick="toggleEvent('${escapeJs(event.id)}')">
+
                 收起
+
             </button>
 
+
         </div>
+
     `;
 
 
-    if (totalAvailable > marketKeys.length) {
-        html += `
-            <div class="more-warning">
-                数据源报告 ${totalAvailable} 种可用盘口，
-                当前请求返回 ${marketKeys.length} 种有赔率的盘口。
-            </div>
-        `;
-    }
-
+    /*
+     * 顶部盘口导航
+     */
 
     html += `
+
         <div class="market-nav">
 
-            ${marketKeys.map(key => `
-                <button
-                    class="market-nav-btn"
-                    onclick="
-                        document
-                        .getElementById(
-                            'market-${safeId(event.id)}-${safeId(key)}'
-                        )
-                        ?.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center'
-                        })
-                    ">
-                    ${escapeHtml(marketName(key))}
-                </button>
-            `).join("")}
+            ${
+
+                marketKeys.map(
+
+                    key => `
+
+                        <button
+
+                            class="market-nav-btn"
+
+                            onclick="
+
+                                document
+
+                                .getElementById(
+
+                                    'market-${safeId(event.id)}-${safeId(key)}'
+
+                                )
+
+                                ?.scrollIntoView({
+
+                                    behavior: 'smooth',
+
+                                    block: 'center'
+
+                                });
+
+                            ">
+
+                            ${escapeHtml(
+                                marketName(key)
+                            )}
+
+                        </button>
+
+                    `
+
+                ).join("")
+
+            }
 
         </div>
+
     `;
 
 
-    marketKeys.forEach(key => {
-        const bookmakerGroups =
-            groups.get(key) || [];
+    /*
+     * 每一个 market 只显示一次
+     */
+
+    marketKeys.forEach(
+        key => {
 
 
-        html += `
-            <section
-                id="market-${safeId(event.id)}-${safeId(key)}"
-                class="market-section">
-
-                <div class="market-header">
-
-                    <span>
-                        ${escapeHtml(marketName(key))}
-                    </span>
-
-                    <span class="market-key">
-                        ${escapeHtml(key)}
-                    </span>
-
-                </div>
-        `;
+            const outcomes =
+                groups.get(key) || [];
 
 
-        bookmakerGroups.forEach(
-            bookmakerGroup => {
+            if (!outcomes.length) {
 
-                const outcomes =
-                    Array.isArray(
-                        bookmakerGroup.market.outcomes
-                    )
-                        ? bookmakerGroup.market.outcomes
-                        : [];
+                return;
+
+            }
 
 
-                if (!outcomes.length) {
-                    return;
-                }
+            html += `
+
+                <section
+
+                    id="market-${safeId(event.id)}-${safeId(key)}"
+
+                    class="market-section">
 
 
-                html += `
-                    <div class="bookmaker-block">
+                    <div class="market-header">
 
-                        <div class="bookmaker-title">
-                            ${escapeHtml(bookmakerGroup.bookmakerTitle)}
-                        </div>
+
+                        <span>
+
+                            ${escapeHtml(
+                                marketName(key)
+                            )}
+
+                        </span>
+
+
+                        <span class="market-count">
+
+                            ${outcomes.length}
+                            个选择
+
+                        </span>
+
+
+                    </div>
+
+
+                    <div class="outcomes-container">
+
 
                         <div class="outcome-grid">
-                `;
+
+            `;
 
 
-                outcomes.forEach(
-                    (outcome, index) => {
+            outcomes.forEach(
 
-                        const price =
-                            Number(outcome.price);
+                outcome => {
 
 
-                        if (!Number.isFinite(price)) {
-                            return;
-                        }
+                    const price =
+                        Number(
+                            outcome.price
+                        );
 
 
-                        const description =
-                            outcome.description
-                                ? String(outcome.description)
-                                : "";
-
-
-                        const outcomeName =
-                            outcome.name
-                                ? String(outcome.name)
-                                : "选择";
-
-
-                        const selection =
-                            description
-                                ? `${description} · ${outcomeName}`
-                                : outcomeName;
-
-
-                        const point =
-                            outcome.point !== null &&
-                            outcome.point !== undefined
-                                ? outcome.point
-                                : null;
-
-
-                        const pickId = [
-                            event.id,
-                            key,
-                            bookmakerGroup.bookmakerKey,
-                            description,
-                            outcomeName,
-                            point ?? "",
-                            index
-                        ].join("::");
-
-
-                        const pick = {
-                            id: pickId,
-
-                            eventId:
-                                event.id,
-
-                            event:
-                                `${event.home_team} vs ${event.away_team}`,
-
-                            marketKey:
-                                key,
-
-                            market:
-                                marketName(key),
-
-                            bookmaker:
-                                bookmakerGroup.bookmakerTitle,
-
-                            selection,
-
-                            point,
-
+                    if (
+                        !Number.isFinite(
                             price
-                        };
+                        )
+                    ) {
 
+                        return;
 
-                        const selected =
-                            picks.some(
-                                existing =>
-                                    existing.id === pickId
-                            );
-
-
-                        const encodedPick =
-                            encodeURIComponent(
-                                JSON.stringify(pick)
-                            );
-
-
-                        html += `
-                            <button
-                                class="odd-btn ${selected ? "selected" : ""}"
-                                data-pick-id="${escapeHtml(pickId)}"
-                                onclick="
-                                    addPickFromEncoded(
-                                        '${encodedPick}'
-                                    )
-                                ">
-
-                                <div class="odd-name">
-                                    ${escapeHtml(selection)}
-                                </div>
-
-                                <div class="odd-row">
-
-                                    <span class="odd-point">
-                                        ${
-                                            point !== null
-                                                ? escapeHtml(
-                                                    String(point)
-                                                )
-                                                : ""
-                                        }
-                                    </span>
-
-                                    <span class="odd-price">
-                                        ${price.toFixed(2)}
-                                    </span>
-
-                                </div>
-
-                            </button>
-                        `;
                     }
-                );
 
 
-                html += `
+                    const description =
+
+                        outcome.description ||
+
+                        "";
+
+
+                    const outcomeName =
+
+                        outcome.name ||
+
+                        "选择";
+
+
+                    const point =
+
+                        outcome.point !== null &&
+
+                        outcome.point !== undefined
+
+                            ? outcome.point
+
+                            : null;
+
+
+                    /*
+                     * 如果有 description：
+                     *
+                     * Haaland · Over
+                     *
+                     * 如果没有：
+                     *
+                     * Arsenal
+                     */
+
+                    const selection =
+
+                        description
+
+                            ? `${description} · ${outcomeName}`
+
+                            : outcomeName;
+
+
+                    /*
+                     * 注意：
+                     *
+                     * bookmaker 不再放进 ID。
+                     *
+                     * 因为相同盘口现在已经合并。
+                     */
+
+                    const pickId = [
+
+                        event.id,
+
+                        key,
+
+                        description
+                            .toLowerCase(),
+
+                        outcomeName
+                            .toLowerCase(),
+
+                        point === null
+                            ? ""
+                            : point
+
+                    ].join("::");
+
+
+                    const pick = {
+
+                        id:
+                            pickId,
+
+                        eventId:
+                            event.id,
+
+                        event:
+
+                            `${event.home_team} vs ${event.away_team}`,
+
+                        marketKey:
+                            key,
+
+                        market:
+                            marketName(key),
+
+                        bookmaker:
+                            outcome.bookmakerTitle,
+
+                        selection,
+
+                        point,
+
+                        price
+
+                    };
+
+
+                    const selected =
+
+                        picks.some(
+
+                            existing =>
+
+                                existing.id ===
+                                pickId
+
+                        );
+
+
+                    const encodedPick =
+
+                        encodeURIComponent(
+
+                            JSON.stringify(
+                                pick
+                            )
+
+                        );
+
+
+                    html += `
+
+                        <button
+
+                            class="odd-btn ${selected ? "selected" : ""}"
+
+                            onclick="addPickFromEncoded('${encodedPick}')">
+
+
+                            <div class="odd-name">
+
+                                ${escapeHtml(
+                                    selection
+                                )}
+
+                            </div>
+
+
+                            <div class="odd-row">
+
+
+                                <span class="odd-point">
+
+                                    ${
+                                        point !== null
+
+                                            ? escapeHtml(
+                                                String(point)
+                                            )
+
+                                            : ""
+                                    }
+
+                                </span>
+
+
+                                <span class="odd-price">
+
+                                    ${price.toFixed(2)}
+
+                                </span>
+
+
+                            </div>
+
+
+                            <div class="odd-source">
+
+                                ${escapeHtml(
+                                    outcome.bookmakerTitle
+                                )}
+
+                            </div>
+
+
+                        </button>
+
+                    `;
+
+                }
+
+            );
+
+
+            html += `
+
                         </div>
+
                     </div>
-                `;
-            }
-        );
+
+                </section>
+
+            `;
+
+        }
+
+    );
 
 
-        html += `
-            </section>
-        `;
-    });
-
-
-    container.innerHTML = html;
+    container.innerHTML =
+        html;
 }
 
 
@@ -1861,42 +2789,70 @@ function renderDetailedOdds(
    PICKS
 ============================================================ */
 
-function addPickFromEncoded(encoded) {
+function addPickFromEncoded(
+    encoded
+) {
+
     let pick;
 
+
     try {
+
         pick =
             JSON.parse(
-                decodeURIComponent(encoded)
+
+                decodeURIComponent(
+                    encoded
+                )
+
             );
+
     } catch (error) {
+
         console.error(
-            "PICK PARSE ERROR:",
+            "PICK:",
             error
         );
 
         return;
+
     }
 
 
     /*
-        点击已经选择的同一个赔率 -> 删除
-    */
-    const exactIndex =
+     * 点击已经选择的项目
+     * = 取消
+     */
+
+    const existingIndex =
+
         picks.findIndex(
-            existing =>
-                existing.id === pick.id
+
+            item =>
+
+                item.id ===
+                pick.id
+
         );
 
 
-    if (exactIndex !== -1) {
+    if (
+        existingIndex !== -1
+    ) {
+
         picks.splice(
-            exactIndex,
+
+            existingIndex,
+
             1
+
         );
+
 
         savePicks();
+
         renderPicks();
+
         refreshOpenDetail();
 
         return;
@@ -1904,89 +2860,133 @@ function addPickFromEncoded(encoded) {
 
 
     /*
-        同一场比赛同一 market 默认只保留一个选择。
-        例如：
-        同一场 h2h 不同时保留主胜和客胜。
-    */
+     * 同一场 + 同一种 market
+     * 只允许一个选择进入串关。
+     */
+
     picks =
-        picks.filter(existing => {
-            return !(
-                existing.eventId === pick.eventId &&
-                existing.marketKey === pick.marketKey
-            );
-        });
+        picks.filter(
+
+            item =>
+
+                !(
+                    item.eventId ===
+                        pick.eventId &&
+
+                    item.marketKey ===
+                        pick.marketKey
+                )
+
+        );
 
 
-    picks.push(pick);
+    picks.push(
+        pick
+    );
+
 
     savePicks();
+
     renderPicks();
+
     refreshOpenDetail();
 }
 
 
 function removePick(id) {
+
     picks =
         picks.filter(
+
             pick =>
-                pick.id !== id
+
+                pick.id !==
+                id
+
         );
 
+
     savePicks();
+
     renderPicks();
+
     refreshOpenDetail();
 }
 
 
 function clearPicks() {
+
     picks = [];
 
+
     savePicks();
+
     renderPicks();
+
     refreshOpenDetail();
 }
 
 
 function savePicks() {
+
     localStorage.setItem(
+
         "sportsPlusPicks",
-        JSON.stringify(picks)
+
+        JSON.stringify(
+            picks
+        )
+
     );
 }
 
 
 function refreshOpenDetail() {
+
     if (!openedEventId) {
+
         return;
+
     }
+
 
     const payload =
         detailCache.get(
             openedEventId
         );
 
+
     const detail =
         document.getElementById(
+
             `event-detail-${openedEventId}`
+
         );
+
 
     if (
         payload &&
         detail
     ) {
+
         renderDetailedOdds(
+
             detail,
+
             payload
+
         );
+
     }
 }
 
 
 /* ============================================================
-   RENDER BET SLIP
+   BET SLIP
 ============================================================ */
 
 function renderPicks() {
+
     const container =
         document.getElementById(
             "picksContainer"
@@ -1994,57 +2994,96 @@ function renderPicks() {
 
 
     if (!picks.length) {
+
         container.innerHTML = `
+
             <div class="pick-empty">
+
                 点击任意赔率加入模拟串关
+
             </div>
+
         `;
+
     } else {
+
         container.innerHTML =
-            picks.map(pick => `
-                <div class="pick">
 
-                    <div class="pick-top">
+            picks.map(
 
-                        <div class="pick-market">
-                            ${escapeHtml(pick.market)}
+                pick => `
+
+                    <div class="pick">
+
+
+                        <div class="pick-top">
+
+
+                            <div class="pick-market">
+
+                                ${escapeHtml(
+                                    pick.market
+                                )}
+
+                            </div>
+
+
+                            <button
+
+                                class="pick-remove"
+
+                                onclick='removePick(${JSON.stringify(pick.id)})'>
+
+                                ×
+
+                            </button>
+
+
                         </div>
 
-                        <button
-                            class="pick-remove"
-                            onclick='removePick(${JSON.stringify(pick.id)})'>
-                            ×
-                        </button>
+
+                        <div class="pick-selection">
+
+                            ${escapeHtml(
+                                pick.selection
+                            )}
+
+                            ${
+                                pick.point !== null &&
+                                pick.point !== undefined
+
+                                    ? ` ${escapeHtml(String(pick.point))}`
+
+                                    : ""
+                            }
+
+                        </div>
+
+
+                        <div class="pick-event">
+
+                            ${escapeHtml(
+                                pick.event
+                            )}
+
+                        </div>
+
+
+                        <div class="pick-price">
+
+                            ${Number(
+                                pick.price
+                            ).toFixed(2)}
+
+                        </div>
+
 
                     </div>
 
-                    <div class="pick-selection">
-                        ${escapeHtml(pick.selection)}
+                `
 
-                        ${
-                            pick.point !== null &&
-                            pick.point !== undefined
-                                ? ` ${escapeHtml(String(pick.point))}`
-                                : ""
-                        }
-                    </div>
+            ).join("");
 
-                    <div class="pick-event">
-                        ${escapeHtml(pick.event)}
-
-                        ${
-                            pick.bookmaker
-                                ? `<br>${escapeHtml(pick.bookmaker)}`
-                                : ""
-                        }
-                    </div>
-
-                    <div class="pick-price">
-                        ${Number(pick.price).toFixed(2)}
-                    </div>
-
-                </div>
-            `).join("");
     }
 
 
@@ -2053,48 +3092,79 @@ function renderPicks() {
 
 
 /* ============================================================
-   CALCULATOR
+   PARLAY CALCULATOR
 ============================================================ */
 
 function calculateSummary() {
+
     const stake =
+
         Math.max(
+
             0,
+
             Number(
+
                 document.getElementById(
                     "stakeInput"
                 ).value
+
             ) || 0
+
         );
 
 
-    let totalOdds = 1;
+    let totalOdds =
+        1;
 
 
-    if (picks.length) {
-        picks.forEach(pick => {
+    picks.forEach(
+        pick => {
+
+
             const price =
-                Number(pick.price);
+                Number(
+                    pick.price
+                );
+
 
             if (
-                Number.isFinite(price) &&
+
+                Number.isFinite(
+                    price
+                ) &&
+
                 price > 0
+
             ) {
-                totalOdds *= price;
+
+                totalOdds *=
+                    price;
+
             }
-        });
-    }
+
+        }
+
+    );
 
 
     const returnAmount =
+
         picks.length
-            ? stake * totalOdds
+
+            ? stake *
+              totalOdds
+
             : 0;
 
 
     const profit =
+
         picks.length
-            ? returnAmount - stake
+
+            ? returnAmount -
+              stake
+
             : 0;
 
 
@@ -2102,165 +3172,246 @@ function calculateSummary() {
         "summary"
     ).innerHTML = `
 
+
         <div class="summary-row">
-            <span>选择数量</span>
+
+            <span>
+                选择数量
+            </span>
 
             <span class="summary-value">
+
                 ${picks.length}
+
             </span>
+
         </div>
 
+
         <div class="summary-row">
-            <span>总赔率</span>
+
+            <span>
+                总赔率
+            </span>
 
             <span class="summary-value green">
+
                 ${
                     picks.length
+
                         ? totalOdds.toFixed(2)
+
                         : "—"
                 }
+
             </span>
+
         </div>
 
+
         <div class="summary-row">
-            <span>模拟金额</span>
+
+            <span>
+                模拟金额
+            </span>
 
             <span class="summary-value">
+
                 $${stake.toFixed(2)}
+
             </span>
+
         </div>
+
 
         <div class="summary-row">
-            <span>模拟返还</span>
+
+            <span>
+                模拟返还
+            </span>
 
             <span class="summary-value green">
+
                 ${
                     picks.length
-                        ? "$" + returnAmount.toFixed(2)
+
+                        ? "$" +
+                          returnAmount.toFixed(2)
+
                         : "—"
                 }
+
             </span>
+
         </div>
+
 
         <div class="summary-row">
-            <span>模拟盈利</span>
+
+            <span>
+                模拟盈利
+            </span>
 
             <span class="summary-value green">
+
                 ${
                     picks.length
-                        ? "$" + profit.toFixed(2)
+
+                        ? "$" +
+                          profit.toFixed(2)
+
                         : "—"
                 }
+
             </span>
+
         </div>
+
     `;
 }
 
 
 /* ============================================================
-   LEAGUE CONTROLS
+   LEAGUE BUTTONS
 ============================================================ */
 
 document
-    .querySelectorAll(".league")
-    .forEach(button => {
 
-        button.addEventListener(
-            "click",
-            () => {
+    .querySelectorAll(
+        ".league"
+    )
 
-                document
-                    .querySelectorAll(".league")
-                    .forEach(item =>
-                        item.classList.remove(
-                            "active"
+    .forEach(
+        button => {
+
+
+            button.addEventListener(
+
+                "click",
+
+                () => {
+
+
+                    document
+
+                        .querySelectorAll(
+                            ".league"
                         )
+
+                        .forEach(
+                            item =>
+
+                                item.classList.remove(
+                                    "active"
+                                )
+
+                        );
+
+
+                    button.classList.add(
+                        "active"
                     );
 
 
-                button.classList.add(
-                    "active"
-                );
+                    currentSport =
+
+                        button.dataset.sport;
 
 
-                currentSport =
-                    button.dataset.sport;
+                    currentLeagueName =
+
+                        button.dataset.name ||
+
+                        button.textContent.trim();
 
 
-                currentLeagueName =
-                    button.dataset.name ||
-                    button.textContent.trim();
+                    document.getElementById(
+                        "leagueTitle"
+                    ).textContent =
+
+                        currentLeagueName;
 
 
-                document.getElementById(
-                    "leagueTitle"
-                ).textContent =
-                    currentLeagueName;
+                    document.getElementById(
+                        "searchInput"
+                    ).value =
+                        "";
 
 
-                document.getElementById(
-                    "searchInput"
-                ).value = "";
+                    /*
+                     * 切换联赛时清掉比赛详情缓存
+                     */
+
+                    detailCache.clear();
 
 
-                /*
-                    切换联赛时清空详情缓存，
-                    避免不同 sport 下 event ID 状态混淆。
-                */
-                detailCache.clear();
+                    loadEvents();
 
+                }
 
-                loadEvents();
-            }
-        );
-    });
+            );
+
+        }
+
+    );
 
 
 /* ============================================================
    UI EVENTS
 ============================================================ */
 
-document
-    .getElementById(
-        "searchInput"
-    )
-    .addEventListener(
-        "input",
-        renderEvents
-    );
+document.getElementById(
+    "searchInput"
+)
+.addEventListener(
+
+    "input",
+
+    renderEvents
+
+);
 
 
-document
-    .getElementById(
-        "refreshBtn"
-    )
-    .addEventListener(
-        "click",
-        () => {
-            detailCache.clear();
-            loadEvents();
-        }
-    );
+document.getElementById(
+    "refreshBtn"
+)
+.addEventListener(
+
+    "click",
+
+    () => {
+
+        detailCache.clear();
+
+        loadEvents();
+
+    }
+
+);
 
 
-document
-    .getElementById(
-        "stakeInput"
-    )
-    .addEventListener(
-        "input",
-        calculateSummary
-    );
+document.getElementById(
+    "stakeInput"
+)
+.addEventListener(
+
+    "input",
+
+    calculateSummary
+
+);
 
 
-document
-    .getElementById(
-        "clearPicksBtn"
-    )
-    .addEventListener(
-        "click",
-        clearPicks
-    );
+document.getElementById(
+    "clearPicksBtn"
+)
+.addEventListener(
+
+    "click",
+
+    clearPicks
+
+);
 
 
 /* ============================================================
