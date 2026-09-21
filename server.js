@@ -2,34 +2,175 @@ const express = require("express");
 const path = require("path");
 
 const app = express();
+
 const PORT = process.env.PORT || 10000;
 const API_KEY = process.env.ODDS_API_KEY;
-
 const API_BASE = "https://api.the-odds-api.com/v4";
 
 app.use(express.json());
 
+/* =========================================================
+   基础设置
+========================================================= */
 
-// ===============================
-// 测试服务器
-// ===============================
+const REGION = "eu";
+
+/*
+  只允许前端请求 API 实际报告存在的 market。
+  不自己虚构盘口。
+*/
+const MARKET_LIMIT = 28;
+
+/*
+  简单内存缓存。
+  Render 重启后自动清空。
+*/
+const cache = new Map();
+
+function getCache(key) {
+    const item = cache.get(key);
+
+    if (!item) return null;
+
+    if (Date.now() > item.expires) {
+        cache.delete(key);
+        return null;
+    }
+
+    return item.data;
+}
+
+function setCache(key, data, ttl) {
+    cache.set(key, {
+        data,
+        expires: Date.now() + ttl
+    });
+}
+
+/* =========================================================
+   赔率处理
+========================================================= */
+
+function convertOdds(price) {
+    const n = Number(price);
+
+    if (!Number.isFinite(n)) {
+        return null;
+    }
+
+    return Number(
+        Math.max(1.01, n * 0.85).toFixed(2)
+    );
+}
+
+function transformOutcome(outcome) {
+    const price = convertOdds(outcome.price);
+
+    if (price === null) return null;
+
+    return {
+        name: outcome.name || "",
+        description: outcome.description || "",
+        point: outcome.point ?? null,
+        price
+    };
+}
+
+function transformBookmaker(bookmaker) {
+    return {
+        key: bookmaker.key,
+        title: bookmaker.title,
+
+        markets: (bookmaker.markets || []).map(market => ({
+            key: market.key,
+            last_update: market.last_update || null,
+
+            outcomes: (market.outcomes || [])
+                .map(transformOutcome)
+                .filter(Boolean)
+        }))
+    };
+}
+
+function transformEvent(event) {
+    return {
+        id: event.id,
+        sport_key: event.sport_key,
+        sport_title: event.sport_title,
+        commence_time: event.commence_time,
+        home_team: event.home_team,
+        away_team: event.away_team,
+
+        bookmakers: (event.bookmakers || [])
+            .map(transformBookmaker)
+    };
+}
+
+/* =========================================================
+   通用上游请求
+========================================================= */
+
+async function upstream(url) {
+    const response = await fetch(url);
+
+    const text = await response.text();
+
+    let data;
+
+    try {
+        data = JSON.parse(text);
+    } catch {
+        throw new Error(
+            `上游返回非 JSON。HTTP ${response.status}: ` +
+            text.substring(0, 180)
+        );
+    }
+
+    if (!response.ok) {
+        const message =
+            data?.message ||
+            data?.error ||
+            JSON.stringify(data);
+
+        const err = new Error(message);
+        err.status = response.status;
+        throw err;
+    }
+
+    return {
+        data,
+
+        quota: {
+            remaining:
+                response.headers.get("x-requests-remaining"),
+
+            used:
+                response.headers.get("x-requests-used"),
+
+            last:
+                response.headers.get("x-requests-last")
+        }
+    };
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
 
 app.get("/api/status", (req, res) => {
-    res.status(200).json({
+    res.json({
         ok: true,
-        server: "SPORTS+",
+        server: "SPORTS+ DETAIL",
         apiKeyConfigured: Boolean(API_KEY),
         time: new Date().toISOString()
     });
 });
 
-
-// ===============================
-// 获取体育项目
-// ===============================
+/* =========================================================
+   SPORTS
+========================================================= */
 
 app.get("/api/sports", async (req, res) => {
-
     if (!API_KEY) {
         return res.status(500).json({
             error: "ODDS_API_KEY 没有配置"
@@ -37,286 +178,329 @@ app.get("/api/sports", async (req, res) => {
     }
 
     try {
+        const cacheKey = "sports";
 
-        const url =
-            `${API_BASE}/sports/?apiKey=${encodeURIComponent(API_KEY)}`;
+        const cached = getCache(cacheKey);
 
-        const response = await fetch(url);
-
-        const text = await response.text();
-
-        let data;
-
-        try {
-            data = JSON.parse(text);
-        } catch {
-            return res.status(502).json({
-                error: "赔率服务器返回的不是 JSON",
-                status: response.status,
-                response: text.substring(0, 300)
-            });
+        if (cached) {
+            return res.json(cached);
         }
 
-        if (!response.ok) {
-            return res.status(response.status).json({
-                error:
-                    data.message ||
-                    data.error ||
-                    "体育项目 API 请求失败",
-                details: data
-            });
-        }
+        const params = new URLSearchParams({
+            apiKey: API_KEY
+        });
 
-        return res.json(data);
+        const result = await upstream(
+            `${API_BASE}/sports/?${params}`
+        );
+
+        const sports = (result.data || [])
+            .filter(x => x.active)
+            .filter(x => !x.has_outrights);
+
+        const payload = {
+            success: true,
+            sports
+        };
+
+        setCache(
+            cacheKey,
+            payload,
+            30 * 60 * 1000
+        );
+
+        res.json(payload);
 
     } catch (error) {
+        console.error("SPORTS:", error);
 
-        console.error("SPORTS API ERROR:", error);
-
-        return res.status(500).json({
-            error: "无法连接赔率服务器",
-            details: error.message
+        res.status(error.status || 500).json({
+            error: error.message
         });
     }
 });
 
+/* =========================================================
+   获取某联赛比赛
+   /events 不需要先加载所有赔率
+========================================================= */
 
-// ===============================
-// 内部赔率处理
-// ===============================
-
-function convertOdds(price) {
-
-    const number = Number(price);
-
-    if (!Number.isFinite(number)) {
-        return null;
-    }
-
-    return Number(
-        Math.max(
-            1.01,
-            number * 0.85
-        ).toFixed(2)
-    );
-}
-
-
-// ===============================
-// 获取比赛赔率
-// ===============================
-
-app.get("/api/odds/:sport", async (req, res) => {
-
+app.get("/api/events/:sport", async (req, res) => {
     if (!API_KEY) {
         return res.status(500).json({
             error: "ODDS_API_KEY 没有配置"
         });
     }
 
-    const sport = req.params.sport;
-
     try {
+        const sport = req.params.sport;
 
-        console.log("Loading sport:", sport);
+        const cacheKey = `events:${sport}`;
+
+        const cached = getCache(cacheKey);
+
+        if (cached) {
+            return res.json(cached);
+        }
 
         const params = new URLSearchParams({
             apiKey: API_KEY,
-            regions: "us",
-            markets: "h2h,spreads,totals",
-            oddsFormat: "decimal",
             dateFormat: "iso"
         });
 
-        const url =
-            `${API_BASE}/sports/${encodeURIComponent(sport)}/odds/?${params}`;
-
-        const response = await fetch(url);
-
-        const text = await response.text();
-
-        let data;
-
-        try {
-            data = JSON.parse(text);
-        } catch {
-
-            console.error(
-                "NON JSON RESPONSE:",
-                text.substring(0, 300)
-            );
-
-            return res.status(502).json({
-                error: "赔率服务器返回异常",
-                httpStatus: response.status,
-                response: text.substring(0, 300)
-            });
-        }
-
-
-        if (!response.ok) {
-
-            console.error(
-                "UPSTREAM ERROR:",
-                data
-            );
-
-            return res.status(response.status).json({
-                error:
-                    data.message ||
-                    data.error ||
-                    "赔率 API 请求失败",
-                details: data,
-                sport: sport
-            });
-        }
-
-
-        if (!Array.isArray(data)) {
-            return res.status(502).json({
-                error: "赔率 API 数据格式不正确"
-            });
-        }
-
-
-        const events = data.map(event => {
-
-            const bookmakers =
-                Array.isArray(event.bookmakers)
-                    ? event.bookmakers
-                    : [];
-
-
-            return {
-
-                id: event.id,
-
-                sport_key: event.sport_key,
-
-                sport_title: event.sport_title,
-
-                commence_time: event.commence_time,
-
-                home_team: event.home_team,
-
-                away_team: event.away_team,
-
-
-                bookmakers: bookmakers.map(bookmaker => {
-
-                    const markets =
-                        Array.isArray(bookmaker.markets)
-                            ? bookmaker.markets
-                            : [];
-
-
-                    return {
-
-                        key: bookmaker.key,
-
-                        title: bookmaker.title,
-
-                        last_update: bookmaker.last_update,
-
-
-                        markets: markets.map(market => {
-
-                            const outcomes =
-                                Array.isArray(market.outcomes)
-                                    ? market.outcomes
-                                    : [];
-
-
-                            return {
-
-                                key: market.key,
-
-                                outcomes: outcomes
-                                    .map(outcome => {
-
-                                        const price =
-                                            convertOdds(
-                                                outcome.price
-                                            );
-
-                                        if (price === null) {
-                                            return null;
-                                        }
-
-                                        return {
-
-                                            name:
-                                                outcome.name,
-
-                                            point:
-                                                outcome.point ?? null,
-
-                                            price:
-                                                price
-                                        };
-
-                                    })
-                                    .filter(Boolean)
-                            };
-
-                        })
-                    };
-
-                })
-            };
-
-        });
-
-
-        return res.status(200).json({
-
-            success: true,
-
-            sport: sport,
-
-            updated:
-                new Date().toISOString(),
-
-            eventCount:
-                events.length,
-
-            events:
-                events
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "ODDS ROUTE ERROR:",
-            error
+        const result = await upstream(
+            `${API_BASE}/sports/` +
+            `${encodeURIComponent(sport)}/events?${params}`
         );
 
-        return res.status(500).json({
-            error: "服务器内部错误",
-            details: error.message
+        const events = (result.data || []).map(event => ({
+            id: event.id,
+            sport_key: event.sport_key,
+            sport_title: event.sport_title,
+            commence_time: event.commence_time,
+            home_team: event.home_team,
+            away_team: event.away_team
+        }));
+
+        const payload = {
+            success: true,
+            sport,
+            events,
+            quota: result.quota
+        };
+
+        setCache(
+            cacheKey,
+            payload,
+            60 * 1000
+        );
+
+        res.json(payload);
+
+    } catch (error) {
+        console.error("EVENTS:", error);
+
+        res.status(error.status || 500).json({
+            error: error.message
         });
     }
 });
 
+/* =========================================================
+   获取单场目前存在的盘口
+========================================================= */
 
-// ===============================
-// API 404
-// ===============================
+app.get(
+    "/api/event/:sport/:eventId/markets",
+    async (req, res) => {
+
+        if (!API_KEY) {
+            return res.status(500).json({
+                error: "ODDS_API_KEY 没有配置"
+            });
+        }
+
+        try {
+            const { sport, eventId } = req.params;
+
+            const cacheKey =
+                `markets:${sport}:${eventId}`;
+
+            const cached = getCache(cacheKey);
+
+            if (cached) {
+                return res.json(cached);
+            }
+
+            const params = new URLSearchParams({
+                apiKey: API_KEY,
+                regions: REGION,
+                dateFormat: "iso"
+            });
+
+            const result = await upstream(
+                `${API_BASE}/sports/` +
+                `${encodeURIComponent(sport)}/events/` +
+                `${encodeURIComponent(eventId)}/markets?${params}`
+            );
+
+            /*
+              汇总所有 bookmaker 的 market keys
+            */
+
+            const marketSet = new Set();
+
+            const bookmakers =
+                result.data?.bookmakers || [];
+
+            bookmakers.forEach(bookmaker => {
+                (bookmaker.markets || [])
+                    .forEach(market => {
+                        if (market.key) {
+                            marketSet.add(market.key);
+                        }
+                    });
+            });
+
+            const markets =
+                Array.from(marketSet);
+
+            const payload = {
+                success: true,
+                event: {
+                    id: result.data?.id,
+                    sport_key:
+                        result.data?.sport_key,
+                    sport_title:
+                        result.data?.sport_title,
+                    commence_time:
+                        result.data?.commence_time,
+                    home_team:
+                        result.data?.home_team,
+                    away_team:
+                        result.data?.away_team
+                },
+                markets,
+                bookmakerCount:
+                    bookmakers.length,
+                quota:
+                    result.quota
+            };
+
+            setCache(
+                cacheKey,
+                payload,
+                90 * 1000
+            );
+
+            res.json(payload);
+
+        } catch (error) {
+            console.error(
+                "EVENT MARKETS:",
+                error
+            );
+
+            res.status(
+                error.status || 500
+            ).json({
+                error: error.message
+            });
+        }
+    }
+);
+
+/* =========================================================
+   获取单场详细赔率
+========================================================= */
+
+app.get(
+    "/api/event/:sport/:eventId/odds",
+    async (req, res) => {
+
+        if (!API_KEY) {
+            return res.status(500).json({
+                error: "ODDS_API_KEY 没有配置"
+            });
+        }
+
+        try {
+            const { sport, eventId } = req.params;
+
+            let markets = String(
+                req.query.markets || "h2h"
+            )
+                .split(",")
+                .map(x => x.trim())
+                .filter(Boolean);
+
+            /*
+              防止一次请求无限 markets
+            */
+            markets = [
+                ...new Set(markets)
+            ].slice(0, MARKET_LIMIT);
+
+            if (!markets.length) {
+                markets = ["h2h"];
+            }
+
+            const marketString =
+                markets.join(",");
+
+            const cacheKey =
+                `odds:${sport}:${eventId}:${marketString}`;
+
+            const cached = getCache(cacheKey);
+
+            if (cached) {
+                return res.json(cached);
+            }
+
+            const params = new URLSearchParams({
+                apiKey: API_KEY,
+                regions: REGION,
+                markets: marketString,
+                oddsFormat: "decimal",
+                dateFormat: "iso"
+            });
+
+            const result = await upstream(
+                `${API_BASE}/sports/` +
+                `${encodeURIComponent(sport)}/events/` +
+                `${encodeURIComponent(eventId)}/odds?${params}`
+            );
+
+            const event =
+                transformEvent(result.data);
+
+            const payload = {
+                success: true,
+                event,
+                requestedMarkets: markets,
+                quota: result.quota
+            };
+
+            /*
+              赔率只缓存 30 秒
+            */
+            setCache(
+                cacheKey,
+                payload,
+                30 * 1000
+            );
+
+            res.json(payload);
+
+        } catch (error) {
+            console.error(
+                "EVENT ODDS:",
+                error
+            );
+
+            res.status(
+                error.status || 500
+            ).json({
+                error: error.message
+            });
+        }
+    }
+);
+
+/* =========================================================
+   API 404
+========================================================= */
 
 app.use("/api", (req, res) => {
-
-    return res.status(404).json({
+    res.status(404).json({
         error: "API 地址不存在",
         path: req.originalUrl
     });
-
 });
 
-
-// ===============================
-// 网站静态文件
-// ===============================
+/* =========================================================
+   STATIC
+========================================================= */
 
 app.use(
     express.static(
@@ -324,13 +508,7 @@ app.use(
     )
 );
 
-
-// ===============================
-// 首页
-// ===============================
-
 app.get("/", (req, res) => {
-
     res.sendFile(
         path.join(
             __dirname,
@@ -338,25 +516,19 @@ app.get("/", (req, res) => {
             "index.html"
         )
     );
-
 });
 
-
-// ===============================
-// 启动
-// ===============================
+/* =========================================================
+   START
+========================================================= */
 
 app.listen(PORT, "0.0.0.0", () => {
-
-    console.log("");
     console.log("==============================");
-    console.log("SPORTS+ SERVER IS RUNNING");
+    console.log("SPORTS+ DETAIL SERVER");
     console.log("PORT:", PORT);
     console.log(
         "ODDS API KEY:",
         API_KEY ? "YES" : "NO"
     );
     console.log("==============================");
-    console.log("");
-
 });
