@@ -890,12 +890,27 @@ async function loadOdds(){
     try{
 
         const response =
-            await fetch(
-                `/api/odds/${currentSport}`
-            );
+    await fetch(
+        `/api/odds/${encodeURIComponent(currentSport)}`
+    );
 
-        const data =
-            await response.json();
+const raw =
+    await response.text();
+
+let data;
+
+try {
+
+    data = JSON.parse(raw);
+
+} catch {
+
+    throw new Error(
+        "服务器返回异常：" +
+        raw.substring(0, 200)
+    );
+
+}
 
         if(!response.ok){
 
