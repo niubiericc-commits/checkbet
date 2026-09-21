@@ -9,52 +9,37 @@ const API_KEY = process.env.ODDS_API_KEY;
 const API_BASE = "https://api.the-odds-api.com/v4";
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
 
-
-/* =========================
-   赔率处理
-========================= */
-
-function finalOdds(value) {
-
-    const odds = Number(value);
-
-    if (!Number.isFinite(odds)) {
-        return null;
-    }
-
-    return Number(
-        Math.max(1.01, odds * 0.85).toFixed(2)
-    );
-}
-
-
-/* =========================
-   测试服务器
-========================= */
+/*
+========================================
+服务器状态测试
+========================================
+*/
 
 app.get("/api/status", (req, res) => {
 
     res.json({
-        status: "ok",
-        apiKeyConfigured: Boolean(API_KEY),
+        ok: true,
+        server: "SPORTS+",
+        apiKeyConfigured: !!API_KEY,
         time: new Date().toISOString()
     });
 
 });
 
 
-/* =========================
-   获取当前可用体育项目
-========================= */
+/*
+========================================
+体育项目
+========================================
+*/
 
 app.get("/api/sports", async (req, res) => {
 
     if (!API_KEY) {
 
         return res.status(500).json({
-            error: "Render 尚未配置 ODDS_API_KEY"
+            error: "没有配置 ODDS_API_KEY"
         });
 
     }
@@ -64,22 +49,28 @@ app.get("/api/sports", async (req, res) => {
         const url =
             `${API_BASE}/sports/?apiKey=${encodeURIComponent(API_KEY)}`;
 
-        const response = await fetch(url);
+        const response =
+            await fetch(url);
 
-        const text = await response.text();
+        const raw =
+            await response.text();
 
         let data;
 
         try {
 
-            data = JSON.parse(text);
+            data =
+                JSON.parse(raw);
 
         } catch {
 
             return res.status(502).json({
-                error: "赔率服务器返回了无法识别的数据",
-                status: response.status,
-                response: text.slice(0, 300)
+                error:
+                    "上游体育 API 返回非 JSON 内容",
+                status:
+                    response.status,
+                preview:
+                    raw.substring(0,300)
             });
 
         }
@@ -87,12 +78,18 @@ app.get("/api/sports", async (req, res) => {
 
         if (!response.ok) {
 
-            return res.status(response.status).json({
+            return res.status(
+                response.status
+            ).json({
+
                 error:
                     data.message ||
                     data.error ||
                     "无法读取体育项目",
-                details: data
+
+                details:
+                    data
+
             });
 
         }
@@ -104,11 +101,14 @@ app.get("/api/sports", async (req, res) => {
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            "SPORTS ERROR",
+            error
+        );
 
         res.status(500).json({
-            error: "服务器连接赔率 API 失败",
-            details: error.message
+            error:
+                error.message
         });
 
     }
@@ -116,16 +116,55 @@ app.get("/api/sports", async (req, res) => {
 });
 
 
-/* =========================
-   获取赔率
-========================= */
+/*
+========================================
+最终赔率
+========================================
+*/
 
-app.get("/api/odds/:sport", async (req, res) => {
+function finalOdds(price) {
+
+    const value =
+        Number(price);
+
+    if (!Number.isFinite(value)) {
+
+        return null;
+
+    }
+
+    /*
+      内部计算
+    */
+
+    const result =
+        value * 0.85;
+
+    return Number(
+        Math.max(
+            1.01,
+            result
+        ).toFixed(2)
+    );
+
+}
+
+
+/*
+========================================
+赔率 API
+========================================
+*/
+
+app.get(
+    "/api/odds/:sport",
+    async (req, res) => {
 
     if (!API_KEY) {
 
         return res.status(500).json({
-            error: "Render 尚未配置 ODDS_API_KEY"
+            error:
+                "服务器没有配置 ODDS_API_KEY"
         });
 
     }
@@ -137,23 +176,20 @@ app.get("/api/odds/:sport", async (req, res) => {
             req.params.sport;
 
 
-        /*
-          先只请求三个基础盘口。
+        console.log(
+            "Requested sport:",
+            sport
+        );
 
-          这是最稳定的一组：
-          h2h
-          spreads
-          totals
-
-          高级盘口之后单独做。
-        */
 
         const params =
             new URLSearchParams({
 
-                apiKey: API_KEY,
+                apiKey:
+                    API_KEY,
 
-                regions: "us",
+                regions:
+                    "us",
 
                 markets:
                     "h2h,spreads,totals",
@@ -167,35 +203,26 @@ app.get("/api/odds/:sport", async (req, res) => {
             });
 
 
-        const url =
+        const upstreamURL =
             `${API_BASE}/sports/` +
             `${encodeURIComponent(sport)}` +
-            `/odds/?${params.toString()}`;
+            `/odds/?` +
+            params.toString();
 
 
         console.log(
-            "Requesting:",
+            "Calling Odds API:",
             `${API_BASE}/sports/${sport}/odds/`
         );
 
 
         const response =
-            await fetch(url);
+            await fetch(
+                upstreamURL
+            );
 
 
-        /*
-          关键修改：
-
-          不再直接 response.json()
-
-          先读取 text。
-
-          所以即使对方返回
-          Not Found
-          也不会导致整个 Node route 崩掉。
-        */
-
-        const text =
+        const raw =
             await response.text();
 
 
@@ -205,61 +232,94 @@ app.get("/api/odds/:sport", async (req, res) => {
         try {
 
             data =
-                JSON.parse(text);
+                JSON.parse(raw);
 
         }
 
         catch {
 
+            console.error(
+                "UPSTREAM NON JSON:",
+                raw.substring(0,500)
+            );
+
+
             return res
-                .status(502)
-                .json({
+            .status(502)
+            .json({
 
-                    error:
-                        "赔率 API 返回了非 JSON 内容",
+                error:
+                    "赔率供应商返回异常",
 
-                    httpStatus:
-                        response.status,
+                status:
+                    response.status,
 
-                    response:
-                        text.slice(0, 500),
+                response:
+                    raw.substring(
+                        0,
+                        300
+                    )
 
-                    requestedSport:
-                        sport
-
-                });
+            });
 
         }
 
 
         if (!response.ok) {
 
+            console.error(
+                "ODDS API ERROR:",
+                data
+            );
+
+
             return res
-                .status(response.status)
-                .json({
+            .status(
+                response.status
+            )
+            .json({
 
-                    error:
-                        data.message ||
-                        data.error ||
-                        "赔率 API 请求失败",
+                error:
+                    data.message ||
+                    data.error ||
+                    "赔率供应商请求失败",
 
-                    details:
-                        data,
+                details:
+                    data,
 
-                    requestedSport:
-                        sport
+                sport
 
-                });
+            });
 
         }
 
 
-        /*
-          数据转换
-        */
+        if (!Array.isArray(data)) {
+
+            return res
+            .status(502)
+            .json({
+
+                error:
+                    "赔率供应商返回格式异常"
+
+            });
+
+        }
+
 
         const events =
             data.map(event => {
+
+                const bookmakers =
+                    Array.isArray(
+                        event.bookmakers
+                    )
+                    ?
+                    event.bookmakers
+                    :
+                    [];
+
 
                 return {
 
@@ -283,11 +343,18 @@ app.get("/api/odds/:sport", async (req, res) => {
 
 
                     bookmakers:
-                        (
-                            event.bookmakers ||
-                            []
-                        )
-                        .map(bookmaker => {
+                        bookmakers.map(
+                            bookmaker => {
+
+                            const markets =
+                                Array.isArray(
+                                    bookmaker.markets
+                                )
+                                ?
+                                bookmaker.markets
+                                :
+                                [];
+
 
                             return {
 
@@ -300,45 +367,63 @@ app.get("/api/odds/:sport", async (req, res) => {
                                 last_update:
                                     bookmaker.last_update,
 
+
                                 markets:
-                                    (
-                                        bookmaker.markets ||
-                                        []
-                                    )
-                                    .map(market => {
+                                    markets.map(
+                                        market => {
+
+                                        const outcomes =
+                                            Array.isArray(
+                                                market.outcomes
+                                            )
+                                            ?
+                                            market.outcomes
+                                            :
+                                            [];
+
 
                                         return {
 
                                             key:
                                                 market.key,
 
+
                                             outcomes:
-                                                (
-                                                    market.outcomes ||
-                                                    []
-                                                )
-                                                .map(outcome => {
+                                                outcomes
+                                                .map(
+                                                    outcome => {
+
+                                                    const price =
+                                                        finalOdds(
+                                                            outcome.price
+                                                        );
+
+
+                                                    if (
+                                                        price === null
+                                                    ) {
+
+                                                        return null;
+
+                                                    }
+
 
                                                     return {
 
                                                         name:
                                                             outcome.name,
 
+                                                        price,
+
                                                         point:
                                                             outcome.point
-                                                            ?? null,
-
-                                                        price:
-                                                            finalOdds(
-                                                                outcome.price
-                                                            )
+                                                            ?? null
 
                                                     };
 
                                                 })
                                                 .filter(
-                                                    outcome =>
-                                                        outcome.price !== null
+                                                    Boolean
                                                 )
 
                                         };
@@ -356,9 +441,17 @@ app.get("/api/odds/:sport", async (req, res) => {
 
         res.json({
 
+            success:
+                true,
+
+            sport,
+
             updated:
                 new Date()
                 .toISOString(),
+
+            eventCount:
+                events.length,
 
             requestsRemaining:
                 response.headers.get(
@@ -370,9 +463,6 @@ app.get("/api/odds/:sport", async (req, res) => {
                     "x-requests-used"
                 ),
 
-            eventCount:
-                events.length,
-
             events
 
         });
@@ -382,15 +472,17 @@ app.get("/api/odds/:sport", async (req, res) => {
     catch (error) {
 
         console.error(
-            "ODDS ERROR:",
+            "SERVER ODDS ERROR:",
             error
         );
 
 
-        res.status(500).json({
+        res
+        .status(500)
+        .json({
 
             error:
-                "获取赔率失败",
+                "服务器获取赔率失败",
 
             details:
                 error.message
@@ -402,9 +494,59 @@ app.get("/api/odds/:sport", async (req, res) => {
 });
 
 
-/* =========================
-   所有其他网页
-========================= */
+/*
+========================================
+静态网页
+
+注意：
+必须放在 /api routes 后面
+========================================
+*/
+
+app.use(
+    express.static(
+        path.join(
+            __dirname,
+            "public"
+        )
+    )
+);
+
+
+/*
+========================================
+API 404
+
+非常重要：
+如果 API route 写错，
+现在会返回 JSON，
+不会再只显示 Not Found。
+========================================
+*/
+
+app.use(
+    "/api",
+    (req, res) => {
+
+        res.status(404).json({
+
+            error:
+                "API 地址不存在",
+
+            requested:
+                req.originalUrl
+
+        });
+
+    }
+);
+
+
+/*
+========================================
+网页 fallback
+========================================
+*/
 
 app.get("*", (req, res) => {
 
@@ -419,14 +561,40 @@ app.get("*", (req, res) => {
 });
 
 
-/* =========================
-   启动
-========================= */
+/*
+========================================
+启动
+========================================
+*/
 
-app.listen(PORT, () => {
+app.listen(
+    PORT,
+    "0.0.0.0",
+    () => {
 
-    console.log(
-        `SPORTS server running on port ${PORT}`
-    );
+        console.log(
+            "================================"
+        );
 
-});
+        console.log(
+            "SPORTS+ SERVER STARTED"
+        );
+
+        console.log(
+            "PORT:",
+            PORT
+        );
+
+        console.log(
+            "API KEY:",
+            API_KEY
+                ? "CONFIGURED"
+                : "MISSING"
+        );
+
+        console.log(
+            "================================"
+        );
+
+    }
+);
