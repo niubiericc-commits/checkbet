@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>体育串关模拟器</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#0d1117;
+    color:#fff;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+}
+
+header{
+    background:#111827;
+    border-bottom:1px solid #263244;
+    padding:16px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+
+.logo{
+    font-size:22px;
+    font-weight:800;
+}
+
+.logo span{
+    color:#46d369;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:1fr 360px;
+    gap:20px;
+    padding:20px;
+}
+
+.tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+}
+
+.tab{
+    padding:10px 16px;
+    border-radius:8px;
+    background:#1b2432;
+    cursor:pointer;
+}
+
+.tab.active{
+    background:#46d369;
+    color:#08120b;
+    font-weight:700;
+}
+
+.league{
+    color:#9aa7b6;
+    font-size:14px;
+    margin:20px 0 10px;
+}
+
+.game{
+    background:#161d27;
+    border:1px solid #263244;
+    border-radius:12px;
+    padding:16px;
+    margin-bottom:12px;
+}
+
+.game-top{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:14px;
+}
+
+.teams{
+    font-weight:700;
+    font-size:17px;
+}
+
+.time{
+    color:#9aa7b6;
+    font-size:13px;
+}
+
+.market-title{
+    font-size:13px;
+    color:#9aa7b6;
+    margin:12px 0 7px;
+}
+
+.odds-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+}
+
+.odds-row.two{
+    grid-template-columns:repeat(2,1fr);
+}
+
+.odd{
+    background:#222c3a;
+    border:1px solid #344154;
+    border-radius:8px;
+    padding:11px 8px;
+    cursor:pointer;
+    text-align:center;
+    transition:.15s;
+}
+
+.odd:hover{
+    border-color:#46d369;
+}
+
+.odd.selected{
+    background:#173d25;
+    border-color:#46d369;
+}
+
+.odd-name{
+    font-size:12px;
+    color:#b8c1cc;
+    display:block;
+}
+
+.odd-price{
+    font-size:17px;
+    color:#55e477;
+    font-weight:800;
+    margin-top:3px;
+    display:block;
+}
+
+.slip{
+    background:#161d27;
+    border:1px solid #263244;
+    border-radius:12px;
+    padding:17px;
+    position:sticky;
+    top:85px;
+    height:max-content;
+}
+
+.slip h2{
+    margin:0 0 6px;
+}
+
+.sub{
+    color:#8794a5;
+    font-size:12px;
+    margin-bottom:15px;
+}
+
+.empty{
+    text-align:center;
+    color:#7f8b99;
+    padding:40px 10px;
+}
+
+.pick{
+    border-bottom:1px solid #2b3543;
+    padding:12px 0;
+}
+
+.pick-head{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.pick-selection{
+    font-weight:700;
+}
+
+.remove{
+    color:#ff7272;
+    cursor:pointer;
+    border:none;
+    background:none;
+    font-size:18px;
+}
+
+.pick-game{
+    color:#8e9aaa;
+    font-size:12px;
+    margin-top:4px;
+}
+
+.price-line{
+    margin-top:7px;
+    font-size:12px;
+}
+
+.market-price{
+    color:#8995a4;
+    text-decoration:line-through;
+    margin-right:8px;
+}
+
+.adjusted{
+    color:#55e477;
+    font-weight:700;
+}
+
+.summary{
+    margin-top:17px;
+}
+
+.summary-row{
+    display:flex;
+    justify-content:space-between;
+    margin:10px 0;
+}
+
+.big{
+    font-size:21px;
+    font-weight:800;
+}
+
+.green{
+    color:#55e477;
+}
+
+input{
+    width:100%;
+    background:#0f151d;
+    border:1px solid #344154;
+    color:white;
+    border-radius:8px;
+    padding:13px;
+    font-size:16px;
+    margin-top:6px;
+}
+
+.warning{
+    margin-top:15px;
+    background:#302718;
+    border:1px solid #624b21;
+    padding:10px;
+    border-radius:8px;
+    color:#e7c67e;
+    font-size:12px;
+}
+
+.add-game{
+    background:#46d369;
+    border:0;
+    padding:10px 16px;
+    border-radius:8px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.75);
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+}
+
+.modal-box{
+    width:90%;
+    max-width:450px;
+    background:#161d27;
+    border:1px solid #344154;
+    border-radius:12px;
+    padding:20px;
+}
+
+.modal-box h2{
+    margin-top:0;
+}
+
+.form-group{
+    margin-bottom:12px;
+}
+
+label{
+    display:block;
+    color:#aeb8c4;
+    font-size:13px;
+}
+
+.modal-buttons{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+}
+
+.modal-buttons button{
+    flex:1;
+    padding:11px;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.save{
+    background:#46d369;
+    font-weight:700;
+}
+
+.cancel{
+    background:#2b3543;
+    color:#fff;
+}
+
+@media(max-width:900px){
+
+    .container{
+        grid-template-columns:1fr;
+        padding:12px;
+    }
+
+    .slip{
+        position:relative;
+        top:0;
+    }
+
+    header{
+        padding:13px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+SPORT<span>模拟</span>
+</div>
+
+<button class="add-game" onclick="openModal()">
+＋ 添加比赛
+</button>
+
+</header>
+
+<div class="container">
+
+<main>
+
+<div class="tabs">
+<div class="tab active">今日</div>
+<div class="tab">滚球</div>
+<div class="tab">足球</div>
+<div class="tab">篮球</div>
+</div>
+
+<div id="games"></div>
+
+</main>
+
+<aside class="slip">
+
+<h2>我的串关</h2>
+
+<div class="sub">
+每一腿展示赔率 = 市场赔率 × 85%
+</div>
+
+<div id="slipContent"></div>
+
+</aside>
+
+</div>
+
+
+<div class="modal" id="modal">
+
+<div class="modal-box">
+
+<h2>添加比赛</h2>
+
+<div class="form-group">
+<label>联赛</label>
+<input id="leagueInput" value="英格兰超级联赛">
+</div>
+
+<div class="form-group">
+<label>主队</label>
+<input id="homeInput" placeholder="例如 阿森纳">
+</div>
+
+<div class="form-group">
+<label>客队</label>
+<input id="awayInput" placeholder="例如 利物浦">
+</div>
+
+<div class="form-group">
+<label>主胜赔率</label>
+<input id="homeOdds" type="number" step="0.01" value="2.00">
+</div>
+
+<div class="form-group">
+<label>平局赔率</label>
+<input id="drawOdds" type="number" step="0.01" value="3.50">
+</div>
+
+<div class="form-group">
+<label>客胜赔率</label>
+<input id="awayOdds" type="number" step="0.01" value="3.20">
+</div>
+
+<div class="modal-buttons">
+
+<button class="cancel" onclick="closeModal()">
+取消
+</button>
+
+<button class="save" onclick="addGame()">
+添加
+</button>
+
+</div>
+
+</div>
+</div>
+
+
+<script>
+
+const DISCOUNT = 0.15;
+
+let games = [
+
+{
+    id:1,
+    league:"西班牙甲级联赛",
+    home:"巴塞罗那",
+    away:"皇家社会",
+    time:"今天 15:00",
+    markets:[
+        {
+            title:"全场赛果",
+            selections:[
+                {name:"巴塞罗那",odds:1.45},
+                {name:"平局",odds:4.80},
+                {name:"皇家社会",odds:6.50}
+            ]
+        },
+        {
+            title:"总进球",
+            selections:[
+                {name:"大于 2.5",odds:1.55},
+                {name:"小于 2.5",odds:2.35}
+            ]
+        }
+    ]
+},
+
+{
+    id:2,
+    league:"英格兰超级联赛",
+    home:"阿森纳",
+    away:"曼城",
+    time:"今天 17:30",
+    markets:[
+        {
+            title:"全场赛果",
+            selections:[
+                {name:"阿森纳",odds:2.25},
+                {name:"平局",odds:3.50},
+                {name:"曼城",odds:2.95}
+            ]
+        },
+        {
+            title:"双方进球",
+            selections:[
+                {name:"是",odds:1.62},
+                {name:"否",odds:2.20}
+            ]
+        }
+    ]
+},
+
+{
+    id:3,
+    league:"美国职业足球大联盟",
+    home:"迈阿密国际",
+    away:"纽约城",
+    time:"明天 19:30",
+    markets:[
+        {
+            title:"全场赛果",
+            selections:[
+                {name:"迈阿密国际",odds:1.70},
+                {name:"平局",odds:4.20},
+                {name:"纽约城",odds:4.10}
+            ]
+        },
+        {
+            title:"总进球",
+            selections:[
+                {name:"大于 3.5",odds:2.05},
+                {name:"小于 3.5",odds:1.72}
+            ]
+        }
+    ]
+}
+
+];
+
+let picks = [];
+
+function adjustedOdds(odds){
+
+    let value = odds * (1 - DISCOUNT);
+
+    /*
+      Decimal odds 正常不能低于 1.00。
+      为了避免 1.10 × 0.85 之类出现 <1，
+      最低显示 1.01。
+    */
+
+    return Math.max(1.01,value);
+
+}
+
+
+function renderGames(){
+
+    const container =
+        document.getElementById("games");
+
+    container.innerHTML="";
+
+    let currentLeague="";
+
+    games.forEach(game=>{
+
+        if(game.league !== currentLeague){
+
+            currentLeague=game.league;
+
+            const league =
+                document.createElement("div");
+
+            league.className="league";
+
+            league.innerText=currentLeague;
+
+            container.appendChild(league);
+
+        }
+
+        const card =
+            document.createElement("div");
+
+        card.className="game";
+
+        let marketsHTML="";
+
+        game.markets.forEach((market,marketIndex)=>{
+
+            const rowClass =
+                market.selections.length === 2
+                ? "odds-row two"
+                : "odds-row";
+
+            let selections="";
+
+            market.selections.forEach(
+                (selection,selectionIndex)=>{
+
+                const selected =
+                    picks.some(p=>
+                        p.gameId===game.id &&
+                        p.marketIndex===marketIndex &&
+                        p.selectionIndex===selectionIndex
+                    );
+
+                selections += `
+                <div
+                class="odd ${selected ? "selected":""}"
+                onclick="togglePick(
+                    ${game.id},
+                    ${marketIndex},
+                    ${selectionIndex}
+                )">
+
+                    <span class="odd-name">
+                        ${selection.name}
+                    </span>
+
+                    <span class="odd-price">
+                        ${adjustedOdds(selection.odds).toFixed(2)}
+                    </span>
+
+                </div>
+                `;
+
+            });
+
+            marketsHTML += `
+            <div class="market-title">
+                ${market.title}
+            </div>
+
+            <div class="${rowClass}">
+                ${selections}
+            </div>
+            `;
+
+        });
+
+        card.innerHTML=`
+
+        <div class="game-top">
+
+            <div class="teams">
+                ${game.home} vs ${game.away}
+            </div>
+
+            <div class="time">
+                ${game.time}
+            </div>
+
+        </div>
+
+        ${marketsHTML}
+
+        `;
+
+        container.appendChild(card);
+
+    });
+
+}
+
+
+function togglePick(
+    gameId,
+    marketIndex,
+    selectionIndex
+){
+
+    const existingIndex =
+        picks.findIndex(p=>
+            p.gameId===gameId &&
+            p.marketIndex===marketIndex &&
+            p.selectionIndex===selectionIndex
+        );
+
+    if(existingIndex >= 0){
+
+        picks.splice(existingIndex,1);
+
+    }else{
+
+        /*
+        同一场同一个市场只能选择一个结果
+        */
+
+        picks = picks.filter(p=>
+            !(
+                p.gameId===gameId &&
+                p.marketIndex===marketIndex
+            )
+        );
+
+        picks.push({
+            gameId,
+            marketIndex,
+            selectionIndex
+        });
+
+    }
+
+    renderGames();
+
+    renderSlip();
+
+}
+
+
+function removePick(index){
+
+    picks.splice(index,1);
+
+    renderGames();
+
+    renderSlip();
+
+}
+
+
+function renderSlip(){
+
+    const container =
+        document.getElementById("slipContent");
+
+    if(picks.length===0){
+
+        container.innerHTML=`
+
+        <div class="empty">
+            点击左侧赔率<br>
+            开始创建你的串关
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let adjustedTotal=1;
+
+    let marketTotal=1;
+
+    let picksHTML="";
+
+
+    picks.forEach((pick,index)=>{
+
+        const game =
+            games.find(g=>g.id===pick.gameId);
+
+        const market =
+            game.markets[pick.marketIndex];
+
+        const selection =
+            market.selections[pick.selectionIndex];
+
+        const adjusted =
+            adjustedOdds(selection.odds);
+
+        marketTotal *= selection.odds;
+
+        adjustedTotal *= adjusted;
+
+
+        picksHTML += `
+
+        <div class="pick">
+
+            <div class="pick-head">
+
+                <div>
+
+                    <div class="pick-selection">
+                        ${selection.name}
+                    </div>
+
+                    <div class="pick-game">
+                        ${game.home} vs ${game.away}
+                    </div>
+
+                    <div class="pick-game">
+                        ${market.title}
+                    </div>
+
+                </div>
+
+                <button
+                class="remove"
+                onclick="removePick(${index})">
+                ×
+                </button>
+
+            </div>
+
+            <div class="price-line">
+
+                市场
+
+                <span class="market-price">
+                    ${selection.odds.toFixed(2)}
+                </span>
+
+                你的赔率
+
+                <span class="adjusted">
+                    ${adjusted.toFixed(2)}
+                </span>
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+
+    container.innerHTML=`
+
+    ${picksHTML}
+
+    <div class="summary">
+
+        <div class="summary-row">
+            <span>选择数量</span>
+            <strong>
+                ${picks.length} 串 1
+            </strong>
+        </div>
+
+        <div class="summary-row">
+            <span>市场串关赔率</span>
+            <strong>
+                ${marketTotal.toFixed(2)}
+            </strong>
+        </div>
+
+        <div class="summary-row">
+            <span>调整后串关赔率</span>
+            <strong class="green big">
+                ${adjustedTotal.toFixed(2)}
+            </strong>
+        </div>
+
+        <label>
+            模拟投注金额（CAD）
+        </label>
+
+        <input
+        id="stake"
+        type="number"
+        value="100"
+        min="0"
+        step="10"
+        oninput="calculateReturn()">
+
+        <div class="summary-row">
+            <span>模拟返还</span>
+            <strong
+            id="return"
+            class="green big">
+            $${(100*adjustedTotal).toFixed(2)}
+            </strong>
+        </div>
+
+        <div class="summary-row">
+            <span>模拟利润</span>
+            <strong id="profit">
+            $${(100*adjustedTotal-100).toFixed(2)}
+            </strong>
+        </div>
+
+        <div class="warning">
+        仅用于赔率与串关计算，不进行真实下注或资金交易。
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+
+function calculateReturn(){
+
+    const stake =
+        Number(
+            document.getElementById("stake").value
+        ) || 0;
+
+    let total=1;
+
+    picks.forEach(pick=>{
+
+        const game =
+            games.find(
+                g=>g.id===pick.gameId
+            );
+
+        const selection =
+            game
+            .markets[pick.marketIndex]
+            .selections[pick.selectionIndex];
+
+        total *= adjustedOdds(
+            selection.odds
+        );
+
+    });
+
+
+    document.getElementById("return")
+        .innerText =
+        "$"+(stake*total).toFixed(2);
+
+    document.getElementById("profit")
+        .innerText =
+        "$"+(stake*total-stake).toFixed(2);
+
+}
+
+
+function openModal(){
+
+    document.getElementById("modal")
+        .style.display="flex";
+
+}
+
+
+function closeModal(){
+
+    document.getElementById("modal")
+        .style.display="none";
+
+}
+
+
+function addGame(){
+
+    const league =
+        document.getElementById(
+            "leagueInput"
+        ).value;
+
+    const home =
+        document.getElementById(
+            "homeInput"
+        ).value;
+
+    const away =
+        document.getElementById(
+            "awayInput"
+        ).value;
+
+
+    if(!home || !away){
+
+        alert("请输入主队和客队");
+
+        return;
+
+    }
+
+
+    games.push({
+
+        id:Date.now(),
+
+        league,
+
+        home,
+
+        away,
+
+        time:"自定义",
+
+        markets:[
+
+            {
+
+                title:"全场赛果",
+
+                selections:[
+
+                    {
+                        name:home,
+                        odds:Number(
+                            document.getElementById(
+                                "homeOdds"
+                            ).value
+                        )
+                    },
+
+                    {
+                        name:"平局",
+                        odds:Number(
+                            document.getElementById(
+                                "drawOdds"
+                            ).value
+                        )
+                    },
+
+                    {
+                        name:away,
+                        odds:Number(
+                            document.getElementById(
+                                "awayOdds"
+                            ).value
+                        )
+                    }
+
+                ]
+
+            }
+
+        ]
+
+    });
+
+
+    closeModal();
+
+    renderGames();
+
+}
+
+
+renderGames();
+
+renderSlip();
+
+</script>
+
+</body>
+</html>
